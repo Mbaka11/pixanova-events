@@ -64,12 +64,19 @@ Références : [CONTEXTE.md](CONTEXTE.md), [EVENEMENTS.md](EVENEMENTS.md).
 
 ## Refonte de la page de vente (revue GPT-6.1 Sol / Opus 5.5)
 
-- [x] Ordre : vidéo explicative, offres sur fond clair, preuves, étapes, création de contenu, FAQ, rappel final.
-- [x] Offres empilées sur mobile; prix par écran discret; alimentation 5 A / 10 A, puis « Selon le kiosque » dès 3 écrans.
+- [x] Révision utilisateur : ordre historique restauré vidéo → étapes → offres, puis création de contenu → preuves → FAQ → rappel final. Fond clair des offres et nouveaux contenus conservés.
+- [x] Offres sur une rangée défilante sur mobile, comme avant ; prix par écran discret ; alimentation 5 A / 10 A, puis « Selon le kiosque » dès 3 écrans.
 - [x] Section création : CNC (graphique) et MAclinique (motion, extrait de 1 min 31 de la boucle V3) avec crédits en pied de page.
 - [x] FAQ réduite à 7 questions; liens vers le site Pixanova; comparatif « affiche traditionnelle » retiré.
 - [ ] Confirmer l’autorisation de diffuser les extraits CNC et MAclinique publiquement (le « 1 595 $ » de CNC est son propre prix).
 - [ ] Sous-titres ou transcription des vidéos.
+
+## Page de validation de paiement
+
+- [x] `/test` FR/EN : paiement réel séparé de 1 CAD, aucune réservation d'écran, lien Stripe à prix fixe limité à une utilisation, non indexé et absent de la navigation.
+- [x] Commande opérateur de remboursement ciblée et idempotente, sans endpoint public de remboursement.
+- [ ] L'utilisateur effectue le paiement réel et vérifie les courriels Stripe ; aucun débit n'est lancé par les contrôles automatiques.
+- Détails : [PAIEMENT-TEST.md](PAIEMENT-TEST.md).
 
 ## 4. Validation métier et mise en ligne
 

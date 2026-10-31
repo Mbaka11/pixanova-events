@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>Test de paiement · Pixanova</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/payment-test.css">
+  <script type="module" src="/js/payment-test.js"></script>
+</head>
+<body class="payment-test-page">
+  <header class="test-header">
+    <a href="/" aria-label="Pixanova"><img src="/assets/images/px-crop-sm.png" alt="Pixanova" width="180" height="29"></a>
+    <nav aria-label="Langue / Language"><a href="/test?lang=fr" lang="fr" data-language="fr">FR</a><a href="/test?lang=en" lang="en" data-language="en">EN</a></nav>
+  </header>
+  <main class="test-card">
+    <p class="test-eyebrow" data-copy="eyebrow">Vérification technique</p>
+    <h1 data-copy="title">Test de paiement</h1>
+    <p class="test-amount" data-copy="amount">1,00 $ CAD</p>
+    <p data-copy="description">Paiement réel et séparé des locations. Aucun écran n’est réservé.</p>
+    <a class="btn" id="testPayment" hidden data-copy="pay">Payer 1,00 $ CAD avec Stripe</a>
+    <p class="test-note" data-copy="note">Utilisez votre vrai courriel pour vérifier le reçu. Remboursement après vérification. Lien limité à un paiement réussi.</p>
+    <p class="test-status" id="testStatus" role="status" aria-live="polite"></p>
+    <noscript><p>Activez JavaScript pour accéder au paiement. / Enable JavaScript to access checkout.</p></noscript>
+  </main>
+</body>
+</html>
