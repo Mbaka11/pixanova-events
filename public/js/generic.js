@@ -1,5 +1,5 @@
 import catalog from './catalog-data.js';
-import {copy,money,languageUrl} from './i18n.mjs';
+import {copy,money} from './i18n.mjs';
 import {genericEnglish,genericCopy} from './generic-i18n.mjs';
 import {referenceRentalPrice,availabilityPeriod,localDate} from './generic-shared.mjs';
 import {montagePrice,montageHours,montageChoices} from './montage.mjs';
@@ -13,6 +13,9 @@ document.querySelector('meta[name="description"]').content=description;document.
 const format=cents=>money(cents,language);
 const text=(selector,value)=>document.querySelectorAll(selector).forEach(e=>e.textContent=value);
 text('#pbNow',format(generic.pricing.one));text('#stkP',format(generic.pricing.one));
+text('[data-reference-tag]',g.referenceTag(generic.referenceDays));
+text('[data-reference-lead]',g.referenceLead(generic.referenceDays));
+text('[data-reference-description]',g.referenceDescription(generic.referenceDays));
 for(const img of document.querySelectorAll('[data-brand-logo]'))img.src=platform.brand.logo;
 for(const link of document.querySelectorAll('[data-brand-website]'))link.href=platform.brand.website;
 for(const link of document.querySelectorAll('a[href^="mailto:"]')){link.href=`mailto:${platform.contact.email}`;if(link.textContent.includes('@'))(link.querySelector('span')||link).textContent=platform.contact.email}
@@ -29,7 +32,7 @@ function renderOffers(){
  for(const [index,screens]of [[1,1],[2,2],[3,count]]){
   text(`[data-p="${index}"]`,format(referenceRentalPrice(generic,screens)));
   const element=document.querySelector(`[data-p="${index}"]`).parentElement;
-  element.querySelector('.unit').textContent=(screens>1?`${format(referenceRentalPrice(generic,screens)/screens)}${ui.en?'/screen':'/écran'} · `:'')+g.unit;
+  element.querySelector('.unit').textContent=(screens>1?`${format(referenceRentalPrice(generic,screens)/screens)}${ui.en?'/screen':'/écran'} · `:'')+g.unit(generic.referenceDays);
   const button=document.querySelector(`[data-b="${index}"]`);button.dataset.pack=screens;button.textContent=g.quote(screens);
  }
  text('#o3N',count);text('#o3Title',ui.screen(count));text('#o3Width',ui.width(count,count*platform.screen.widthCm));
@@ -40,19 +43,9 @@ function renderOffers(){
 document.getElementById('o3Minus').onclick=()=>{count=Math.max(3,count-1);renderOffers()};
 document.getElementById('o3Plus').onclick=()=>{count=Math.min(generic.maxScreens,count+1);renderOffers()};renderOffers();
 
-const availabilityForm=document.getElementById('availabilityForm'),fromInput=document.getElementById('rentalFrom'),throughInput=document.getElementById('rentalThrough');
-const status=document.getElementById('counterNote'),counter=document.getElementById('availabilityCount'),segments=document.getElementById('segs');
 const dialog=document.getElementById('inquiryDialog'),form=document.getElementById('inquiryForm'),result=document.getElementById('inquiryResult'),inquiryStatus=document.getElementById('inquiryAvailability');
-let total=null,current=null,ticket=0,controller,submitting=false,returnFocus;
+let submitting=false,returnFocus;
 function datesValid(from,through){try{availabilityPeriod(from,through,{timeZone:platform.timeZone});return true}catch{return false}}
-function renderAvailability(data){
- current=data?.needsDates?null:data;
- if(Number.isInteger(data?.total))total=data.total;
- counter.textContent=current?g.available(current.remaining,total):total===null?g.dates:g.fleet(total);
- text('#stkL',current?g.available(current.remaining,total):g.dates);
- segments.replaceChildren();segments.hidden=!current;
- if(current)for(let i=0;i<total;i++){const s=document.createElement('i');s.className=i<current.remaining?'on':'off';segments.append(s)}
-}
 async function getAvailability(from,through,signal){
  const params=new URLSearchParams();if(from&&through){params.set('from',from);params.set('through',through)}
  const response=await fetch('/api/availability'+(params.size?'?'+params:''),{cache:'no-store',signal});
@@ -60,27 +53,13 @@ async function getAvailability(from,through,signal){
  if(!Number.isInteger(data.total)||data.total<1||(!data.needsDates&&(!Number.isInteger(data.remaining)||data.remaining<0||data.remaining>data.total||data.from!==from||data.through!==through)))throw new Error('availability_invalid');
  return data;
 }
-async function refreshAvailability(){
- const id=++ticket;controller?.abort();controller=new AbortController();
- const from=fromInput.value,through=throughInput.value;
- if((from||through)&&!datesValid(from,through)){renderAvailability(null);status.textContent=g.invalidDates;return}
- renderAvailability(null);status.textContent=from?g.checking:g.dates;
- try{
-  const data=await getAvailability(from,through,controller.signal);if(id!==ticket)return;
-  renderAvailability(data);status.textContent=data.needsDates?g.dates:g.availabilityNote;
- }catch(error){if(id===ticket&&error.name!=='AbortError'){renderAvailability(null);status.textContent=g.unknown}}
-}
-function setMinimumDates(){const today=localDate(Date.now(),platform.timeZone);for(const id of ['rentalFrom','inquiryFrom'])document.getElementById(id).min=today;throughInput.min=fromInput.value||today;form.elements.through.min=form.elements.from.value||today}
-for(const input of [fromInput,throughInput])input.addEventListener('change',()=>{setMinimumDates();void refreshAvailability()});
-availabilityForm.onsubmit=e=>{e.preventDefault();void refreshAvailability()};
-setMinimumDates();void refreshAvailability();setInterval(()=>{if(!document.hidden)void refreshAvailability()},30000);
-window.addEventListener('focus',()=>{setMinimumDates();void refreshAvailability()});
+function setMinimumDates(){const today=localDate(Date.now(),platform.timeZone);form.elements.from.min=today;form.elements.through.min=form.elements.from.value||today}
+setMinimumDates();
 
 for(let n=1;n<=generic.maxScreens;n++){const option=document.createElement('option');option.value=n;option.textContent=ui.screen(n);form.elements.screens.append(option)}
 for(const choice of montageChoices){const option=document.createElement('option');option.value=choice;option.textContent=`${ui.montageLabel(choice)} · ${format(montagePrice(platform,1,choice,'regular'))}`;form.elements.montage.append(option)}
 function openInquiry(screens,trigger){
  if(dialog.open)return;returnFocus=trigger;form.elements.screens.value=screens;
- if(datesValid(fromInput.value,throughInput.value)){form.elements.from.value=fromInput.value;form.elements.through.value=throughInput.value}
  result.hidden=true;inquiryStatus.textContent=g.dates;setMinimumDates();dialog.showModal();
 }
 document.addEventListener('click',e=>{const link=e.target.closest('[data-pack],[data-cta]');if(!link)return;e.preventDefault();openInquiry(Number(link.dataset.pack)||1,link)});
@@ -101,7 +80,8 @@ form.onsubmit=async e=>{
   const available=availability?g.available(availability.remaining,availability.total):g.unknown;
   inquiryStatus.textContent=availability&&availability.remaining<screens?g.insufficient:available;
   const entries=[fields.name,fields.company,fields.email,fields.phone,fields.location,fields.from,fields.through,String(screens),ui.montageLabel(fields.montage),format(referenceRentalPrice(generic,screens)),format(montagePrice(platform,screens,fields.montage,'regular')),available,fields.notes];
-  const summary=g.summaryTitle+'\n\n'+entries.map((value,i)=>g.summaryKeys[i]+' : '+(value||'—')).join('\n')+'\n\n'+g.summaryNote;
+  const keys=[...g.summaryKeys];keys[9]=g.rentalSummaryLabel(generic.referenceDays);
+  const summary=g.summaryTitle+'\n\n'+entries.map((value,i)=>keys[i]+' : '+(value||'—')).join('\n')+'\n\n'+g.summaryNote;
   document.getElementById('inquirySummary').value=summary;
   document.getElementById('inquiryMail').href=`mailto:${platform.contact.email}?subject=${encodeURIComponent(g.subject)}&body=${encodeURIComponent(summary)}`;
   result.hidden=false;
@@ -112,7 +92,5 @@ document.getElementById('inquiryCopy').onclick=async()=>{
  catch{document.getElementById('inquirySummary').select();inquiryStatus.textContent=g.copyFallback}
 };
 const privacy=form.querySelector('.inquiry-privacy a');if(ui.en)privacy.href='https://www.pixanova.ca/en/legal/politique-de-confidentialite';
-// Les anciennes URL de la liste restent réorientables sans changer les liens ChauCase.
-for(const link of document.querySelectorAll('a[href="/evenements/"]'))link.href=languageUrl('/evenements/',language);
 initGenericPresentation(generic,ui);
 document.documentElement.classList.remove('event-loading');

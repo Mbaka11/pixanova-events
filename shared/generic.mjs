@@ -1,6 +1,7 @@
 // Disponibilité informative seulement : aucune allocation ni tarification à la durée.
 export function validateGenericConfig(config) {
   if(!Number.isInteger(config?.maxScreens)||config.maxScreens<3||config.maxScreens>20)throw new Error('generic_config_invalid');
+  if(!Number.isInteger(config.referenceDays)||config.referenceDays<1||config.referenceDays>365)throw new Error('generic_config_invalid');
   for(const key of ['one','two','perScreen'])if(!Number.isSafeInteger(config.pricing?.[key])||config.pricing[key]<=0)throw new Error('generic_config_invalid');
   for(const key of ['desktopVideo','mobileVideo'])if(!/^\/assets\/[a-zA-Z0-9_./-]+$/.test(config.media?.[key]||'')||config.media[key].includes('..'))throw new Error('generic_config_invalid');
   return config;

@@ -9,6 +9,7 @@ import {makeHandler as quoteHandler} from '../server/quote.mjs';
 const now=()=>Date.parse('2026-01-01T12:00:00Z');
 const request=query=>new Request('https://example.test/api/availability'+query);
 test('tarifs génériques réguliers sans remise ni durée inventée',()=>{
+ assert.equal(catalog.generic.referenceDays,3);
  assert.equal(referenceRentalPrice(catalog.generic,1),79500);assert.equal(referenceRentalPrice(catalog.generic,2),139500);assert.equal(referenceRentalPrice(catalog.generic,3),195000);assert.equal(referenceRentalPrice(catalog.generic,10),650000);
  assert.throws(()=>referenceRentalPrice(catalog.generic,0));assert.throws(()=>referenceRentalPrice(catalog.generic,11));
  assert.throws(()=>validateGenericConfig({...catalog.generic,pricing:{one:-1}}));
@@ -55,7 +56,9 @@ test('séparation des trois parcours, accueil sans promotions ni Checkout',()=>{
  const read=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
  const home=read('public/index.html'),list=read('public/evenements/index.html'),event=read('public/evenement.html');
  assert.match(home,/js\/generic.js/);assert.doesNotMatch(home,/js\/config.js|Early bird|data-montage-simple-saving|data-route="\/merci"|data-refund-date/);
- assert.match(home,/id="inquiryDialog"/);assert.match(home,/href="\/evenements\/"/);assert.match(list,/js\/catalog.js/);
- assert.match(event,/js\/config.js/);assert.match(event,/href="\/evenements\/"/);assert.match(event,/id="skCd"/);
+ assert.match(home,/id="inquiryDialog"/);assert.doesNotMatch(home,/href="\/evenements\/"|id="counter"|id="availabilityForm"|id="stkL"/);assert.match(list,/js\/catalog.js/);
+ assert.match(home,/Forfait 3 jours/);assert.doesNotMatch(home,/noindex/);
+ assert.match(event,/js\/config.js/);assert.doesNotMatch(event,/href="\/evenements\/"/);assert.match(event,/id="skCd"/);
+ assert.match(event,/noindex, nofollow/);assert.match(list,/noindex, nofollow/);
  const genericJS=read('public/js/generic.js');assert.doesNotMatch(genericJS,/\/api\/checkout|\/api\/quote|localStorage|sessionStorage/);
 });

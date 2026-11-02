@@ -3,34 +3,32 @@ import {readFileSync,writeFileSync} from 'node:fs';
 export function buildGeneric(){
  let html=readFileSync(new URL('../public/evenement.html',import.meta.url),'utf8');
  const replace=(old,value)=>{if(!html.includes(old))throw new Error('generic_template_changed: '+old.slice(0,70));html=html.replaceAll(old,value)};
+ replace('<meta name="robots" content="noindex, nofollow">\n','');
  replace('<title>Pixanova Events</title>','<title>Pixanova — Location d’écrans LED pour votre événement</title>');
  replace('<link rel="stylesheet" href="css/landing.css">','<link rel="stylesheet" href="css/landing.css">\n<link rel="stylesheet" href="css/generic.css">');
  replace('Réservez vos écrans LED Pixanova pour votre événement.','Des écrans LED pour vos salons et événements. Choisissez vos dates et demandez un devis personnalisé.');
  replace('<meta property="og:title" content="Pixanova Events">','<meta property="og:title" content="Pixanova — Location d’écrans LED">');
  replace('Réservation d’écrans LED pour exposants.','Location d’écrans LED pour salons, congrès et événements professionnels.');
- replace('Activez JavaScript pour sélectionner votre événement. <a href="/">Retour aux événements</a>','Activez JavaScript pour vérifier les disponibilités. Pour un devis : <a href="mailto:info@pixanova.ca">info@pixanova.ca</a>.');
+ replace('Activez JavaScript pour sélectionner votre événement. <a href="/">Retour aux événements</a>','Activez JavaScript pour préparer votre demande. Pour un devis : <a href="mailto:info@pixanova.ca">info@pixanova.ca</a>.');
  replace('<div id="banner" class="banner"></div>','<div id="banner" class="banner over">Pour vos salons, congrès et événements professionnels</div>');
  replace('<span class="x">×</span><span class="chip sm"><img data-event-logo alt="Logo de l’événement"></span>','');
  html=html.replace(/<h1>Exposant[\s\S]*?<\/h1>/,'<h1>Votre marque mérite <em>plus qu’une affiche.</em> Donnez-lui vie sur nos écrans LED.</h1>');
  replace('<p class="event-dates" id="eventDates"></p>','<p class="event-dates">Salons · Congrès · Événements corporatifs</p>');
  replace("Réservez votre écran et on s'occupe de vous le livrer et de l'installer gratuitement.",'Choisissez vos écrans et vos dates. Nous préparons avec vous une solution adaptée à votre événement.');
- replace('<span class="pb-tag" id="pbTag">Prix early bird</span><span class="pb-save" id="pbSave"></span>','<span class="pb-tag">Tarif de référence</span>');
+ replace('<span class="pb-tag" id="pbTag">Prix early bird</span><span class="pb-save" id="pbSave"></span>','<span class="pb-tag" data-reference-tag>Forfait 3 jours</span>');
  replace('<s class="pb-was" id="pbWas"></s>','');
  replace('par écran, tout inclus, avant taxes','1 écran · avant taxes · devis personnalisé');
  replace('<ul class="trust"><li>Prix exclusif aux exposants <span data-event-name></span></li><li>Remboursable jusqu\'au <span data-refund-date></span></li><li>Livraison, installation et désinstallation incluses</li></ul>','<ul class="trust"><li>Un devis adapté à vos dates et à votre lieu</li><li>Accompagnement pour vos visuels</li><li>Livraison et installation organisées avec vous</li></ul>');
- replace('<div class="c-head"><span class="live"><i></i>En direct</span><span class="c-t"><b id="left">—</b> écrans restants sur <span data-total-screens></span></span></div>',`<div class="c-head"><span class="live"><i></i>Disponibilité</span><span class="c-t" id="availabilityCount">Choisissez vos dates</span></div>
-<form id="availabilityForm" class="availability-form">
- <label for="rentalFrom">Livraison / installation souhaitée<input id="rentalFrom" name="from" type="date" required></label>
- <label for="rentalThrough">Reprise / désinstallation souhaitée<input id="rentalThrough" name="through" type="date" required></label>
- <button class="btn" type="submit">Vérifier mes dates</button>
-</form>`);
- replace('<div class="note" id="counterNote"></div>','<p class="note" id="counterNote" role="status" aria-live="polite">Disponibilité issue de notre stock partagé, pour la période complète de mise à disposition. Vérifier ne réserve aucun écran.</p>');
+ const counterStart=html.indexOf('      <div class="counter" id="counter">');
+ const counterEnd=html.indexOf('    </div>\n    <div class="screen-wrap">',counterStart);
+ if(counterStart<0||counterEnd<counterStart)throw new Error('generic_counter_changed');
+ html=html.slice(0,counterStart)+html.slice(counterEnd);
  replace('Le même chemin pour tous les kiosques, petits ou grands.','Un accompagnement simple, de votre idée à votre événement.');
  replace('<h3>Réservez</h3><p>3 minutes en ligne, prix bloqué.</p>','<h3>Parlez-nous de votre projet</h3><p>Vos dates, votre lieu et le nombre d’écrans.</p>');
  replace('<span class="when">Aujourd\'hui</span>','<span class="when">Quand vous êtes prêt</span>');
  replace('<span class="when">Avant le <span data-artwork-date></span></span>','<span class="when">Selon le calendrier convenu</span>');
  replace('<span class="when" data-installation-date></span>','<span class="when">À la date convenue</span>');
- replace('Location pour tout le salon, avant taxes. Création de contenu en option.','Tarifs de référence avant taxes. Le devis précise la durée, la logistique et le prix final selon vos dates et votre lieu.');
+ replace('<p class="lead">Location pour tout le salon, avant taxes. Création de contenu en option.</p>','<p class="lead" data-reference-lead>Forfaits de location de 3 jours, avant taxes. Le devis confirme la logistique et adapte le prix si votre durée change.</p>');
  html=html.replace(/<span class="was" data-w="\d"><\/span>/g,'').replace(/<div class="save" data-s="\d"><\/div>/g,'');
  replace('Livraison et installation le <span data-installation-date></span>','Organisation de la livraison et de l’installation');
  replace('Assistance pendant tout le salon','Accompagnement pour votre événement');
@@ -38,7 +36,7 @@ export function buildGeneric(){
  replace('Tout ce qui est inclus avec 1 écran','Le même accompagnement que pour 1 écran');
  html=html.replace(/<span class="sample-savings"[^>]*><\/span>/g,'').replace(/<del data-montage-(?:simple|animated)-regular hidden><\/del>/g,'');
  replace('  <p class="sample-duration-note" data-design-promo-deadline hidden></p>\n','');
- replace('La location pour le salon, la livraison, l’installation, la vérification des visuels, l’assistance et la désinstallation. La création de contenu est facultative. Les taxes s’ajoutent.','Les prix affichés sont des tarifs de référence. Votre devis précise la durée de location, les frais de livraison et d’installation éventuels, la reprise et les services retenus. La création de contenu est facultative. Les taxes s’ajoutent.');
+ replace('La location pour le salon, la livraison, l’installation, la vérification des visuels, l’assistance et la désinstallation. La création de contenu est facultative. Les taxes s’ajoutent.','<span data-reference-description>Les tarifs de référence couvrent un forfait de location de 3 jours. Le devis précise la durée retenue, les frais logistiques éventuels et les services choisis. Les taxes s’ajoutent.</span>');
  replace('JPEG, PNG ou MP4, avant le <span data-artwork-date-full></span>. Nous confirmons avec vous les dimensions selon le nombre d’écrans.','JPEG, PNG ou MP4. Nous convenons ensemble de la date de remise et des dimensions selon le nombre d’écrans.');
  replace("Oui. Remboursement complet jusqu'au <span data-refund-date-full></span>. Après cette date, la réservation n'est plus remboursable.",'Les conditions d’annulation et de remboursement sont précisées dans votre devis avant engagement. Contactez-nous pour étudier un changement de dates ou une annulation. Une demande de devis ne réserve aucun écran et n’entraîne aucun paiement.');
  replace('Le paiement est sécurisé par Stripe après vérification du récapitulatif. Pour payer par virement Interac, contactez notre équipe.','Aucun paiement n’est demandé sur cette page. Nous confirmons d’abord votre devis et les modalités de paiement avec vous.');
@@ -49,7 +47,8 @@ export function buildGeneric(){
  if(start<0||end<start)throw new Error('generic_routes_changed');html=html.slice(0,start)+html.slice(end);
  replace('Fournisseur officiel d\'écrans LED de <span data-event-full-name></span>','Écrans LED pour vos événements professionnels');
  replace('<span class="sk-cd"><i></i>Early bird : <b id="skCd">--</b></span>','<span class="sk-cd">Devis personnalisé</span>');
- replace('<span>par écran</span>','<span>tarif de référence</span>');
+ replace('<span>par écran</span>','<span data-reference-tag>forfait 3 jours</span>');
+ replace('<span class="sk-left" id="stkL">Stock à confirmer</span>','');
  replace('href="#offres" data-cta>Réserver mon écran','href="#offres" data-cta>Demander un devis');
  replace('href="#offres" data-cta>Réserver</a>','href="#offres" data-cta>Demander un devis</a>');
  for(const n of [1,2,3])replace(`>Réserver ${n} écran${n>1?'s':''}</a>`,`>Un devis pour ${n} écran${n>1?'s':''}</a>`);

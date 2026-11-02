@@ -33,12 +33,12 @@ test('dictionnaires dynamiques ont les mêmes clés; traduction de l’animation
  assert.equal(staticEnglish['Votre marque'],'Your brand');assert.equal(staticEnglish['Réserver'],'Reserve');
 });
 test('forfaits : heures, équivalents horaires et durées expliqués dans les deux langues',()=>{
- assert.equal(copy('fr').montageEffort(4),'4 h de création incluses');
- assert.equal(copy('en').montageEffort(8),'8 hours of design included');
- assert.match(copy('fr').montageHourly(14900,4),/37,25/);
- assert.match(copy('fr').montageHourly(24900,8),/31,13/);
- assert.match(copy('en').montageDescription('animated',8),/8 hours/);
- assert.match(copy('fr').montageDescription('simple',4),/30 secondes/);
+ assert.equal(copy('fr').montageEffort(5),'5 h de création incluses');
+ assert.equal(copy('en').montageEffort(10),'10 hours of design included');
+ assert.match(copy('fr').montageHourly(30000,5),/60,00/);
+ assert.match(copy('fr').montageHourly(50000,10),/50,00/);
+ assert.match(copy('en').montageDescription('animated',10),/10 hours/);
+ assert.match(copy('fr').montageDescription('simple',5),/30 secondes/);
  assert.match(copy('fr').montageDurationNote,/complexité/);
 });
 test('Stripe : anglais, libellés et retours conservés; montant et dates identiques',async()=>{

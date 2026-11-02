@@ -16,8 +16,8 @@ test('création : forfaits fixes 149 $ / 249 $, sans supplément de 1 à 10 écr
   assert.equal(montagePrice(catalog.platform,n,'animated'),24900);
  }
  assert.equal(montageHours(catalog.platform,'none'),0);
- assert.equal(montageHours(catalog.platform,'simple'),4);
- assert.equal(montageHours(catalog.platform,'animated'),8);
+ assert.equal(montageHours(catalog.platform,'simple'),5);
+ assert.equal(montageHours(catalog.platform,'animated'),10);
 });
 test('prix actuels et arrondis par ligne compatibles avec les anciens montants aussi',()=>{
  const order=computeOrder(event,catalog.platform,2,'simple',early());
@@ -31,7 +31,7 @@ test('prix actuels et arrondis par ligne compatibles avec les anciens montants a
 });
 test('création early bird : remise réelle jusqu’à la frontière exacte, puis 300 / 500 dollars',()=>{
  const deadline=Date.parse(event.dates.earlyBirdEndsAt);
- for(const [choice,earlyCents,regularCents,hours] of [['simple',14900,30000,4],['animated',24900,50000,8]]){
+ for(const [choice,earlyCents,regularCents,hours] of [['simple',14900,30000,5],['animated',24900,50000,10]]){
   const before=computeOrder(event,catalog.platform,1,choice,deadline-1);
   const after=computeOrder(event,catalog.platform,1,choice,deadline);
   assert.equal(before.phase,'early');assert.equal(before.montageCents,earlyCents);
@@ -47,7 +47,7 @@ test('Stripe reçoit le tarif régulier de création après l’échéance',asyn
  assert.equal(response.status,200);
  assert.equal(stripe.created[0].line_items[1].price_data.unit_amount,50000);
  assert.equal(stripe.created[0].metadata.montage_cents,'50000');
- assert.equal(stripe.created[0].metadata.montage_hours,'8');
+ assert.equal(stripe.created[0].metadata.montage_hours,'10');
 });
 test('options invalides et montants incohérents refusés',()=>{
  for(const option of ['anime','SIMPLE','',null,0,true,{}])assert.throws(()=>computeOrder(event,catalog.platform,2,option,early()));
@@ -61,7 +61,7 @@ test('une seule session avec une ligne écrans et une ligne service, sans consom
  assert.equal(payload.line_items[0].price_data.unit_amount,109500);assert.equal(payload.line_items[1].price_data.unit_amount,14900);
  assert.equal(payload.line_items[1].quantity,1);assert.equal(payload.line_items[1].price_data.product_data.name,'Graphic design');
  assert.equal(payload.line_items[2].price_data.unit_amount,0);assert.match(payload.line_items[2].price_data.product_data.name,/included/);
- assert.equal(payload.metadata.screens,'2');assert.equal(payload.metadata.montage,'simple');assert.equal(payload.metadata.montage_cents,'14900');assert.equal(payload.metadata.montage_hours,'4');
+ assert.equal(payload.metadata.screens,'2');assert.equal(payload.metadata.montage,'simple');assert.equal(payload.metadata.montage_cents,'14900');assert.equal(payload.metadata.montage_hours,'5');
  assert.equal(payload.metadata.logistics_included,'true');assert.deepEqual(payload.line_items[0].tax_rates,payload.line_items[1].tax_rates);
 });
 test('nom du contact natif, co-branding public et aucun logo localhost envoyé à Stripe',async()=>{
@@ -85,7 +85,7 @@ test('sans montage : aucune ligne payante supplémentaire',async()=>{
 });
 test('quote : aucun blocage de stock ni création de session',async()=>{
  const stripe=fakeStripe();const response=await quoteHandler(()=>stripe,early)(bodyRequest({eventId:event.id,screens:3,montage:'animated'}));
- assert.equal(response.status,200);const data=await response.json();assert.equal(data.montageCents,24900);assert.equal(data.montageHours,8);assert.equal(stripe.created.length,0);
+ assert.equal(response.status,200);const data=await response.json();assert.equal(data.montageCents,24900);assert.equal(data.montageHours,10);assert.equal(stripe.created.length,0);
 });
 test('total modifié entre le récapitulatif et le paiement : demander de confirmer à nouveau',async()=>{
  const stripe=fakeStripe();const response=await checkoutHandler(()=>stripe,early)(bodyRequest({eventId:event.id,screens:2,montage:'simple',expectedTotalCents:1}));

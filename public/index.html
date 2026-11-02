@@ -22,14 +22,13 @@
 <link rel="stylesheet" href="css/generic.css">
 </head>
 <body>
-<noscript><style>.event-loading body{visibility:visible}body > :not(noscript){display:none!important}</style>Activez JavaScript pour vérifier les disponibilités. Pour un devis : <a href="mailto:info@pixanova.ca">info@pixanova.ca</a>.</noscript>
+<noscript><style>.event-loading body{visibility:visible}body > :not(noscript){display:none!important}</style>Activez JavaScript pour préparer votre demande. Pour un devis : <a href="mailto:info@pixanova.ca">info@pixanova.ca</a>.</noscript>
 
 <div id="banner" class="banner over">Pour vos salons, congrès et événements professionnels</div>
 
 <header class="top">
   <div class="wrap row1">
     <a class="logos" href="/" aria-label="Accueil Pixanova Events"><img class="px" data-brand-logo src="assets/images/px-crop-sm.png" alt="Pixanova"></a>
-    <a class="event-back" href="/evenements/">Tous les événements</a>
   </div>
 </header>
 
@@ -48,21 +47,11 @@
       </div>
       <div class="pt-row">
       <div class="pbox">
-        <div class="pb-top"><span class="pb-tag">Tarif de référence</span></div>
+        <div class="pb-top"><span class="pb-tag" data-reference-tag>Forfait 3 jours</span></div>
         <div class="pb-row"><b class="pb-now" id="pbNow"></b></div>
         <span class="pb-sub">1 écran · avant taxes · devis personnalisé</span>
       </div>
       <ul class="trust"><li>Un devis adapté à vos dates et à votre lieu</li><li>Accompagnement pour vos visuels</li><li>Livraison et installation organisées avec vous</li></ul>
-      </div>
-      <div class="counter" id="counter">
-        <div class="c-head"><span class="live"><i></i>Disponibilité</span><span class="c-t" id="availabilityCount">Choisissez vos dates</span></div>
-<form id="availabilityForm" class="availability-form">
- <label for="rentalFrom">Livraison / installation souhaitée<input id="rentalFrom" name="from" type="date" required></label>
- <label for="rentalThrough">Reprise / désinstallation souhaitée<input id="rentalThrough" name="through" type="date" required></label>
- <button class="btn" type="submit">Vérifier mes dates</button>
-</form>
-        <div class="segs" id="segs"></div>
-        <p class="note" id="counterNote" role="status" aria-live="polite">Disponibilité issue de notre stock partagé, pour la période complète de mise à disposition. Vérifier ne réserve aucun écran.</p>
       </div>
     </div>
     <div class="screen-wrap">
@@ -279,7 +268,7 @@
     <div class="head center">
       <div class="eyebrow">Les offres</div>
       <h2>Choisissez vos écrans</h2>
-      <p class="lead">Tarifs de référence avant taxes. Le devis précise la durée, la logistique et le prix final selon vos dates et votre lieu.</p>
+      <p class="lead" data-reference-lead>Forfaits de location de 3 jours, avant taxes. Le devis confirme la logistique et adapte le prix si votre durée change.</p>
     </div>
     <div class="offers" style="color:var(--ink)">
       <div class="offer">
@@ -389,7 +378,7 @@
 </section>
 <section class="s white" id="faq"><div class="wrap narrow">
  <div class="head center"><div class="eyebrow" style="color:#1D4FC4">Questions fréquentes</div><h2>L’essentiel avant de réserver</h2></div>
- <details><summary>Qu'est-ce qui est inclus dans le prix?</summary><p>Les prix affichés sont des tarifs de référence. Votre devis précise la durée de location, les frais de livraison et d’installation éventuels, la reprise et les services retenus. La création de contenu est facultative. Les taxes s’ajoutent.</p></details>
+ <details><summary>Qu'est-ce qui est inclus dans le prix?</summary><p><span data-reference-description>Les tarifs de référence couvrent un forfait de location de 3 jours. Le devis précise la durée retenue, les frais logistiques éventuels et les services choisis. Les taxes s’ajoutent.</span></p></details>
  <details><summary>Je n'ai pas de visuels. Est-ce un problème?</summary><p>Vous pouvez fournir vos fichiers ou choisir un forfait de création. <a href="#montage">Comparez les deux forfaits et leurs exemples.</a></p></details>
  <details><summary>Combien d'écrans pour un kiosque 10 x 10?</summary><p>Trois écrans côte à côte couvrent presque toute la largeur d’un kiosque de 10 pieds. Le compteur permet d’ajuster votre réservation de 3 à 10 écrans.</p></details>
  <details><summary>Quels fichiers envoyer, et quand?</summary><p>JPEG, PNG ou MP4. Nous convenons ensemble de la date de remise et des dimensions selon le nombre d’écrans.</p></details>
@@ -421,8 +410,8 @@
 </div>
 
 <div class="sticky" id="sticky">
-  <div class="sk-top"><span class="sk-cd">Devis personnalisé</span><span class="sk-left" id="stkL">Stock à confirmer</span></div>
-  <div class="sk-bot"><div class="sk-price"><b id="stkP"></b><span>tarif de référence</span></div><a class="btn" href="#offres" data-cta>Demander un devis</a></div>
+  <div class="sk-top"><span class="sk-cd">Devis personnalisé</span></div>
+  <div class="sk-bot"><div class="sk-price"><b id="stkP"></b><span data-reference-tag>forfait 3 jours</span></div><a class="btn" href="#offres" data-cta>Demander un devis</a></div>
 </div>
 
 
