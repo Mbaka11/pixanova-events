@@ -1,8 +1,8 @@
 // Initialisation du modèle commun. Modifier config/events/*.json, pas ce fichier.
 import catalog from './catalog-data.js';
-import { eventLabels, bookingIsOpen } from './events-shared.js';
+import { eventLabels, bookingIsOpen, currentPhase } from './events-shared.js';
 import { copy, money as formatMoney } from './i18n.mjs';
-import { montageHours } from './montage.mjs';
+import { montageHours, montagePrice } from './montage.mjs';
 import { language, homeUrl, localizeEvent, translateStaticDOM, installLanguageSwitcher } from './language.js';
 const ui = copy(language);
 translateStaticDOM();
@@ -55,6 +55,32 @@ if (!event) {
     '.price .unit': ui.duration(labels.durationDays),
   };
   for (const [selector, value] of Object.entries(bindings)) text(selector, value);
+  let designPhase;
+  function updateDesignPrices() {
+    const phase = currentPhase(event);
+    if (phase === designPhase) return;
+    designPhase = phase;
+    const early = phase === 'early';
+    const promo = document.querySelector('[data-design-promo]');
+    promo.hidden = !early;
+    text('[data-design-promo-title]', ui.designPromoTitle);
+    text('[data-design-promo-deadline]', ui.designPromoDeadline(labels.earlyDeadline, platform.montage.regularSimpleCents, platform.montage.regularAnimatedCents));
+    for (const choice of ['simple', 'animated']) {
+      const price = montagePrice(platform, 1, choice, phase);
+      const regular = montagePrice(platform, 1, choice, 'regular');
+      const discount = early && regular > price;
+      text(`[data-montage-${choice}]`, money(price));
+      text(`[data-montage-${choice}-hourly]`, ui.montageHourly(price, montageHours(platform, choice)));
+      const original = document.querySelector(`[data-montage-${choice}-regular]`);
+      original.hidden = !discount; original.textContent = money(regular);
+      original.setAttribute('aria-label', ui.designRegularLabel(regular));
+      const savings = document.querySelector(`[data-montage-${choice}-saving]`);
+      savings.hidden = !discount; savings.textContent = ui.designSavings(regular - price);
+    }
+  }
+  updateDesignPrices();
+  setInterval(updateDesignPrices, 1000);
+  document.addEventListener('visibilitychange', updateDesignPrices);
   document.querySelectorAll('[data-event-logo]').forEach((img) => { img.src = event.logo; img.alt = event.name; });
   document.querySelectorAll('[data-brand-logo]').forEach((img) => { img.src = platform.brand.logo; });
   document.querySelectorAll('[data-brand-website]').forEach((link) => { link.href = platform.brand.website; });

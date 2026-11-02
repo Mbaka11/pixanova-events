@@ -14,7 +14,7 @@ export function lineTax(cents, percent) {
 export function computeOrder(event, platform, screens, montage = 'none', now = Date.now()) {
   if (!isValidScreens(event, screens) || !isValidMontage(montage)) throw new RangeError('Commande invalide');
   const rental = computePrice(event, screens, now);
-  const montageCents = montagePrice(platform, screens, montage);
+  const montageCents = montagePrice(platform, screens, montage, rental.phase);
   const lines = [rental.totalCents, ...(montageCents ? [montageCents] : [])];
   const gstCents = lines.reduce((sum, value) => sum + lineTax(value, platform.taxes.gstPercent), 0);
   const qstCents = lines.reduce((sum, value) => sum + lineTax(value, platform.taxes.qstPercent), 0);

@@ -4,6 +4,7 @@ section[id]{scroll-margin-top:90px}
 #offres{padding-top:56px!important;background:#f8fafc;color:var(--ink);border-top:1px solid #dce3ed}#offres .head .eyebrow{color:#1D4FC4}.offer .value{display:none}.offer .price .unit{font-size:12px;line-height:1.5}.offer .amp b{font-size:12px;font-weight:500}
 #preuves .head .rate{display:inline-flex;margin-top:18px}#preuves .tem-h{margin-top:26px}
 .flow .fs{opacity:1!important;transform:none!important;animation:none!important}
+.design-promo:not([hidden]){display:flex;flex-direction:column;gap:8px;max-width:1000px;margin:0 auto 34px;padding:20px 24px;border:1px solid #f6c381;border-left:4px solid #ed8a24;border-radius:12px;background:linear-gradient(110deg,#fff3df,#fffaf2)}.design-promo strong{color:#7e3c08;font-size:18px}.design-promo span{color:#6b4d2e;font-size:12px;line-height:1.6}.sample-price del:not([hidden]){display:block;color:var(--muted);font-size:15px;font-weight:500;line-height:1.3;margin-bottom:4px;text-decoration-thickness:1.5px}.sample-savings:not([hidden]){margin:16px 0 0;padding:9px 12px;border-radius:8px;background:#fff1db;color:#854007;font-size:12px;font-weight:800;line-height:1.5}.featured .sample-savings:not([hidden]){background:#eaf1ff;color:#1645ac}
 .creation-samples{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:1000px;margin:0 auto}
 .creation-sample{position:relative;padding:30px 26px 26px;border:1px solid var(--line);border-radius:14px;background:#fff;display:flex;flex-direction:column}
 .creation-sample.featured{border-color:#a7bef3;box-shadow:0 8px 30px #2563eb08}

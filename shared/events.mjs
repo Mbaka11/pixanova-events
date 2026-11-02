@@ -17,6 +17,9 @@ export function validateCatalog(input) {
   if (platform.brand.checkoutLogo) assert(publicAsset(platform.brand.checkoutLogo), 'Logo Checkout invalide');
   for (const key of ['valueCents', 'widthCm', 'widthPx', 'heightPx']) assert(cents(platform.screen?.[key]), `Écran : ${key} invalide`);
   for (const key of ['simpleCents', 'animatedCents']) assert(cents(platform.montage?.[key]), `Montage : ${key} invalide`);
+  for (const [earlyKey, regularKey] of [['simpleCents','regularSimpleCents'],['animatedCents','regularAnimatedCents']]) {
+    assert(cents(platform.montage?.[regularKey]) && platform.montage[regularKey] >= platform.montage[earlyKey], `Montage : tarif régulier ${regularKey} invalide`);
+  }
   assert(platform.montage?.multipleScreensExtraCents === 0, 'Les forfaits de création n’ont pas de supplément par écran');
   for (const key of ['simpleHours', 'animatedHours']) assert(Number.isSafeInteger(platform.montage?.[key]) && platform.montage[key] > 0, `Montage : ${key} invalide`);
   for (const key of ['gstPercent', 'qstPercent']) assert(typeof platform.taxes?.[key] === 'number' && platform.taxes[key] > 0 && platform.taxes[key] < 100 && Number.isInteger(platform.taxes[key] * 1000), `Taxe ${key} invalide`);

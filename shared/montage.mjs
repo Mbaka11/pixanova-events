@@ -1,8 +1,10 @@
 export const montageChoices = ['none', 'simple', 'animated'];
 export const isValidMontage = (value) => typeof value === 'string' && montageChoices.includes(value);
-export function montagePrice(platform, screens, montage) {
+export function montagePrice(platform, screens, montage, phase = 'early') {
   if (!Number.isInteger(screens) || screens < 1 || !isValidMontage(montage)) throw new RangeError('Option de montage invalide');
   if (montage === 'none') return 0;
+  if (!['early', 'regular'].includes(phase)) throw new RangeError('Phase de tarif invalide');
+  if (phase === 'regular') return montage === 'simple' ? platform.montage.regularSimpleCents : platform.montage.regularAnimatedCents;
   return montage === 'simple' ? platform.montage.simpleCents : platform.montage.animatedCents;
 }
 export function montageHours(platform, montage) {

@@ -1,5 +1,6 @@
 import { copy, money } from './i18n.mjs';
 import { montageChoices, montagePrice, montageHours } from './montage.mjs';
+import { currentPhase } from './events-shared.js';
 
 export function createBookingDialog(config, { refreshStock, onCheckout } = {}) {
   const ui = copy(config.language);
@@ -91,6 +92,7 @@ export function createBookingDialog(config, { refreshStock, onCheckout } = {}) {
       if(!response.ok)throw new Error(data.error==='booking_closed'?ui.checkoutClosed:ui.quoteError);
       if(data.eventId!==config.event.id||data.screens!==screens||data.montage!==montage||data.currency!=='cad'||Object.keys(values).some(key=>!Number.isSafeInteger(data[key])||data[key]<0))throw new Error(ui.quoteError);
       quote=data;
+      for(const [option,elements]of choices)elements.price.textContent=money(montagePrice(config.platform,screens,option,data.phase),config.language);
       for(const [key,value]of Object.entries(values))value.textContent=money(data[key],config.language,true);
       status.textContent='';
     } catch(error) {
@@ -131,7 +133,7 @@ export function createBookingDialog(config, { refreshStock, onCheckout } = {}) {
   return {open(count,trigger){
     if(dialog.open||busy)return;
     screens=count; returnFocus=trigger;choices.get('none').input.checked=true;
-    for(const [option,elements]of choices)elements.price.textContent=money(montagePrice(config.platform,screens,option),config.language);
+    for(const [option,elements]of choices)elements.price.textContent=money(montagePrice(config.platform,screens,option,currentPhase(config.event)),config.language);
     eventLine.textContent=`${config.labels.fullName} · ${ui.screen(screens)}`;
     dialog.showModal();void loadQuote();
   }};

@@ -29,6 +29,26 @@ test('prix actuels et arrondis par ligne compatibles avec les anciens montants a
  assert.equal(lineTax(109500,9.975)+lineTax(25000,9.975),13417);
  assert.notEqual(lineTax(134500,9.975),13417); // ancien forfait : ne pas arrondir le panier globalement
 });
+test('création early bird : remise réelle jusqu’à la frontière exacte, puis 300 / 500 dollars',()=>{
+ const deadline=Date.parse(event.dates.earlyBirdEndsAt);
+ for(const [choice,earlyCents,regularCents,hours] of [['simple',14900,30000,4],['animated',24900,50000,8]]){
+  const before=computeOrder(event,catalog.platform,1,choice,deadline-1);
+  const after=computeOrder(event,catalog.platform,1,choice,deadline);
+  assert.equal(before.phase,'early');assert.equal(before.montageCents,earlyCents);
+  assert.equal(after.phase,'regular');assert.equal(after.montageCents,regularCents);
+  assert.equal(after.montageHours,hours);
+  assert.equal(after.totalCents,after.subtotalCents+after.gstCents+after.qstCents);
+  assert.equal(montagePrice(catalog.platform,10,choice,'regular'),regularCents);
+ }
+});
+test('Stripe reçoit le tarif régulier de création après l’échéance',async()=>{
+ const stripe=fakeStripe();
+ const response=await checkoutHandler(()=>stripe,()=>Date.parse(event.dates.earlyBirdEndsAt))(bodyRequest({eventId:event.id,screens:1,montage:'animated'}));
+ assert.equal(response.status,200);
+ assert.equal(stripe.created[0].line_items[1].price_data.unit_amount,50000);
+ assert.equal(stripe.created[0].metadata.montage_cents,'50000');
+ assert.equal(stripe.created[0].metadata.montage_hours,'8');
+});
 test('options invalides et montants incohérents refusés',()=>{
  for(const option of ['anime','SIMPLE','',null,0,true,{}])assert.throws(()=>computeOrder(event,catalog.platform,2,option,early()));
  assert.throws(()=>lineTax(-1,5));

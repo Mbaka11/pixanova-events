@@ -8,7 +8,7 @@
   "contact": { "email": "info@pixanova.ca", "phone": "+1 (438) 491-0384" },
   "brand": { "logo": "/assets/images/px-crop-sm.png", "checkoutLogo": "/assets/images/checkout/pixanova.png", "checkoutName": "Pixanova", "website": "https://pixanova.ca/" },
   "screen": { "valueCents": 700000, "widthCm": 96, "widthPx": 516, "heightPx": 1032 },
-  "montage": { "simpleCents": 14900, "animatedCents": 24900, "multipleScreensExtraCents": 0, "simpleHours": 4, "animatedHours": 8 },
+  "montage": { "simpleCents": 14900, "animatedCents": 24900, "regularSimpleCents": 30000, "regularAnimatedCents": 50000, "multipleScreensExtraCents": 0, "simpleHours": 4, "animatedHours": 8 },
   "taxes": { "gstPercent": 5, "qstPercent": 9.975 },
   "analytics": { "ga4": "", "clarity": "", "metaPixel": "" }
 }
