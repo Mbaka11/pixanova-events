@@ -61,10 +61,9 @@ if (!event) {
     if (phase === designPhase) return;
     designPhase = phase;
     const early = phase === 'early';
-    const promo = document.querySelector('[data-design-promo]');
-    promo.hidden = !early;
-    text('[data-design-promo-title]', ui.designPromoTitle);
-    text('[data-design-promo-deadline]', ui.designPromoDeadline(labels.earlyDeadline, platform.montage.regularSimpleCents, platform.montage.regularAnimatedCents));
+    const deadline = document.querySelector('[data-design-promo-deadline]');
+    deadline.hidden = !early;
+    deadline.textContent = ui.designPromoDeadline(labels.earlyDeadline);
     for (const choice of ['simple', 'animated']) {
       const price = montagePrice(platform, 1, choice, phase);
       const regular = montagePrice(platform, 1, choice, 'regular');
@@ -75,7 +74,7 @@ if (!event) {
       original.hidden = !discount; original.textContent = money(regular);
       original.setAttribute('aria-label', ui.designRegularLabel(regular));
       const savings = document.querySelector(`[data-montage-${choice}-saving]`);
-      savings.hidden = !discount; savings.textContent = ui.designSavings(regular - price);
+      savings.hidden = !discount; savings.textContent = ui.designSavings(Math.floor((regular - price) * 100 / regular));
     }
   }
   updateDesignPrices();

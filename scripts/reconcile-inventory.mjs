@@ -14,7 +14,7 @@ try {
   if (!(await db.pool(environment, INVENTORY_POOL)).ready) throw new Error('inventory_not_initialized');
   const stripe = new Stripe(env.STRIPE_SECRET_KEY, { timeout: 10000, maxNetworkRetries: 1 });
   const inventory = createInventory({ db, environment });
-  const rows = await db.rows(environment, INVENTORY_POOL);
+  const rows = (await db.rows(environment, INVENTORY_POOL)).filter(row => row.order_snapshot?.source !== 'offline');
   // Rechercher les sessions détachées, y compris au-delà de 24 h. Cette recherche
   // ne crée jamais une nouvelle session et ne libère pas une demande sans preuve.
   const detached = rows.filter(r => !r.stripe_session_id);

@@ -4,7 +4,7 @@ Plateforme de location d’écrans LED pour exposants : un accueil pour choisir 
 
 **État : production active sur https://events.pixanova.ca.** Stripe réel, TPS/TVQ réelles, stock transactionnel Supabase LIVE et webhook réel raccordés. Checkout réel vérifié sans paiement, puis notre session expirée : stock 20 → 19 → 20. Le développement local reste en test, séparé du stock réel. Les courriels Stripe suffisent au périmètre retenu ; Resend est facultatif. Détails : [docs/SUPABASE-EVENTS.md](docs/SUPABASE-EVENTS.md).
 
-Forfaits de contenu : **création graphique 149 $ / 4 h**, **motion design 249 $ / 8 h**, avant taxes et sans supplément selon la quantité. Tarifs early bird jusqu’au 15 décembre inclus (Montréal); ensuite **300 $ / 500 $** pour la création. Économies affichées : **151 $ / 251 $**; tarifs réguliers futurs, pas un historique de prix pratiqués. Accueil compact, modale sans jargon, nom du contact requis dans Stripe et confirmation avec résumé ligne par ligne. Livraison et installation affichées comme offertes, sans réduction fictive.
+Forfaits de contenu : **création graphique 149 $ / 4 h**, **motion design 249 $ / 8 h**, avant taxes et sans supplément selon la quantité. Tarifs early bird jusqu’au 15 décembre inclus (Montréal); ensuite **300 $ / 500 $** pour la création. Affichage simplifié : **−50 %** avec prix réguliers barrés; tarifs réguliers futurs, pas un historique de prix pratiqués. Accueil compact, modale sans jargon, nom du contact requis dans Stripe et confirmation avec résumé ligne par ligne. Livraison et installation affichées comme offertes, sans réduction fictive.
 
 ## Développement
 

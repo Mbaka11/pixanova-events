@@ -14,7 +14,7 @@ export default async () => {
   const pool = await db.pool(environment, INVENTORY_POOL);
   if (!pool.ready) return;
   const [holds, paid] = await Promise.all([
-    db.request(`events_reservations?environment=eq.${environment}&pool_id=eq.${INVENTORY_POOL}&state=in.(allocating,held,pending,review)&order=updated_at,id&limit=10`),
+    db.request(`events_reservations?environment=eq.${environment}&pool_id=eq.${INVENTORY_POOL}&state=in.(allocating,held,pending,review)&or=(order_snapshot->>source.is.null,order_snapshot->>source.neq.offline)&order=updated_at,id&limit=10`),
     db.request(`events_reservations?environment=eq.${environment}&pool_id=eq.${INVENTORY_POOL}&state=eq.paid&order=updated_at,id&limit=2`),
   ]);
   const rows = [...holds, ...paid];

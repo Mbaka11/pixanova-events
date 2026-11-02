@@ -31,6 +31,14 @@
 - Netlify gratuit ne permet pas la portée personnalisée « functions seulement ». Les nouvelles variables utilisent les portées standard (secret masqué pour la clé Supabase), comme les secrets Stripe existants. Aucune clé n'est incluse dans les fichiers publics.
 - À cette étape historique, le réel était encore bloqué. La section « Production active » ci-dessus décrit la levée contrôlée de cette ancienne garde au profit du parc transactionnel LIVE.
 
+## Réservations hors ligne (bouche à oreille)
+
+```sh
+node scripts/reserve-offline.mjs --live --event chaucase-2027 --screens 1 --reference word-of-mouth-001
+```
+
+Commande opérateur serveur uniquement. La référence doit rester identique en cas de retry : UUID déterministe, RPC transactionnel et aucune double allocation. `source=offline`, état `held`, `payment_status=not_recorded` : le zéro technique n’est pas une facture ni un paiement gratuit confirmé. Aucun Checkout, courriel ou débit Stripe n’est créé. Ne jamais baisser la capacité globale de 20 : seule la fenêtre logistique de l’événement est réservée. Les réconciliations Stripe ignorent ces lignes; aucun relâchement sur expiration d’horloge. Toute annulation hors ligne exige une décision opérateur explicite et une libération sous verrou du parc; ne pas changer la référence pour remplacer une réservation libérée.
+
 ## Schéma installé
 
 Les migrations `001` et `002` sont installées. **Ne pas les réexécuter.** Elles ajoutent les transitions d'état, l'outbox de courriels et une garde de bascule `ready=false`, sans activer de paiement.

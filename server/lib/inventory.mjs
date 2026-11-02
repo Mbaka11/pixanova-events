@@ -35,6 +35,10 @@ export function createInventory({ db = createInventoryDb(), environment = stripe
     },
     find: requestId => db.find(environment, requestId),
     async reconcile(stripe, row, { session, stripeEvent } = {}) {
+      if (row.order_snapshot?.source === 'offline') {
+        if (session || stripeEvent || row.stripe_session_id || row.stripe_payment_intent_id || row.state === 'paid') throw new Error('offline_reservation_inconsistent');
+        return { row, session: null }; // Hors ligne : ni création Stripe, ni expiration automatique.
+      }
       if (!session) {
         if (row.stripe_session_id) {
           session = await stripe.checkout.sessions.retrieve(row.stripe_session_id, { expand: ['payment_intent.latest_charge'] });
