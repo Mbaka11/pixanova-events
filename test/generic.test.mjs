@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {catalog} from '../config/catalog.mjs';
-import {availabilityPeriod,referenceRentalPrice,validateGenericConfig} from '../shared/generic.mjs';
+import {availabilityPeriod,referenceRentalPrice,validateGenericConfig,dailyRentalPrice,usageDays,computeGenericEstimate} from '../shared/generic.mjs';
 import {makeHandler} from '../server/availability.mjs';
 import {makeHandler as checkoutHandler} from '../server/create-checkout.mjs';
 import {makeHandler as quoteHandler} from '../server/quote.mjs';
@@ -14,7 +14,31 @@ test('tarifs génériques réguliers sans remise ni durée inventée',()=>{
  assert.throws(()=>referenceRentalPrice(catalog.generic,0));assert.throws(()=>referenceRentalPrice(catalog.generic,11));
  assert.throws(()=>validateGenericConfig({...catalog.generic,pricing:{one:-1}}));
 });
-test('dates de disponibilité : reprise incluse, fuseau Montréal et changements d’heure',()=>{
+test('prorata journalier exact : 265,465 et216,67 environ par écran dès3',()=>{
+ assert.equal(dailyRentalPrice(catalog.generic,1),26500);assert.equal(dailyRentalPrice(catalog.generic,2),46500);
+ assert.equal(dailyRentalPrice(catalog.generic,3),65000);
+ assert.equal(computeGenericEstimate(catalog.generic,catalog.platform,1,3).rentalCents,79500);
+ assert.equal(computeGenericEstimate(catalog.generic,catalog.platform,2,3).rentalCents,139500);
+ assert.equal(computeGenericEstimate(catalog.generic,catalog.platform,3,3).rentalCents,195000);
+ // Ne pas multiplier un tarif affiché déjà arrondi : le total du forfait reste exact.
+ assert.equal(computeGenericEstimate(catalog.generic,catalog.platform,4,2).rentalCents,173333);
+ assert.equal(computeGenericEstimate(catalog.generic,catalog.platform,4,3).rentalCents,260000);
+});
+test('jours calendaires d’utilisation inclusifs, indépendamment des changements d’heure',()=>{
+ assert.equal(usageDays('2027-02-02','2027-02-02'),1);assert.equal(usageDays('2027-02-02','2027-02-04'),3);
+ assert.equal(usageDays('2026-03-07','2026-03-09'),3);assert.equal(usageDays('2026-10-31','2026-11-02'),3);
+ for(const dates of [['2027-02-04','2027-02-02'],['2026-02-30','2026-03-01'],['2027-01-01','2028-01-02']])assert.throws(()=>usageDays(...dates));
+});
+test('estimation : création ajoutée une seule fois, avant taxes et sans logistique inventée',()=>{
+ const first=computeGenericEstimate(catalog.generic,catalog.platform,2,1,'animated');
+ const long=computeGenericEstimate(catalog.generic,catalog.platform,2,3,'animated');
+ assert.equal(first.rentalCents,46500);assert.equal(first.montageCents,50000);assert.equal(first.subtotalCents,96500);
+ assert.equal(long.rentalCents,139500);assert.equal(long.montageCents,50000);assert.equal(long.subtotalCents,189500);
+ for(const days of [0,-1,1.5,Infinity,367])assert.throws(()=>computeGenericEstimate(catalog.generic,catalog.platform,1,days));
+ assert.throws(()=>computeGenericEstimate(catalog.generic,catalog.platform,0,1));
+ assert.throws(()=>computeGenericEstimate(catalog.generic,catalog.platform,1,1,'bad'));
+});
+test('dates de disponibilité : période incluse, fuseau Montréal et changements d’heure',()=>{
  const opts={now:now()};
  const chaucase=availabilityPeriod('2027-02-01','2027-02-04',opts);
  assert.deepEqual(chaucase,{rentalStartsAt:'2027-02-01T05:00:00.000Z',rentalEndsAt:'2027-02-05T05:00:00.000Z'});
@@ -57,7 +81,7 @@ test('séparation des trois parcours, accueil sans promotions ni Checkout',()=>{
  const home=read('public/index.html'),list=read('public/evenements/index.html'),event=read('public/evenement.html');
  assert.match(home,/js\/generic.js/);assert.doesNotMatch(home,/js\/config.js|Early bird|data-montage-simple-saving|data-route="\/merci"|data-refund-date/);
  assert.match(home,/id="inquiryDialog"/);assert.doesNotMatch(home,/href="\/evenements\/"|id="counter"|id="availabilityForm"|id="stkL"/);assert.match(list,/js\/catalog.js/);
- assert.match(home,/Forfait 3 jours/);assert.doesNotMatch(home,/noindex/);
+ assert.match(home,/Tarif journalier/);assert.match(home,/Début d’utilisation à l’événement/);assert.match(home,/id="inquiryEstimate"/);assert.doesNotMatch(home,/Forfait 3 jours|forfait de location de 3 jours/);assert.doesNotMatch(home,/noindex/);
  assert.match(event,/js\/config.js/);assert.doesNotMatch(event,/href="\/evenements\/"/);assert.match(event,/id="skCd"/);
  assert.match(event,/noindex, nofollow/);assert.match(list,/noindex, nofollow/);
  const genericJS=read('public/js/generic.js');assert.doesNotMatch(genericJS,/\/api\/checkout|\/api\/quote|localStorage|sessionStorage/);

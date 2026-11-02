@@ -1,7 +1,7 @@
 import catalog from './catalog-data.js';
 import {copy,money} from './i18n.mjs';
 import {genericEnglish,genericCopy} from './generic-i18n.mjs';
-import {referenceRentalPrice,availabilityPeriod,localDate} from './generic-shared.mjs';
+import {dailyRentalPrice,computeGenericEstimate,usageDays,availabilityPeriod,localDate} from './generic-shared.mjs';
 import {montagePrice,montageHours,montageChoices} from './montage.mjs';
 import {language,translateStaticDOM,installLanguageSwitcher} from './language.js';
 import {initGenericPresentation} from './generic-presentation.js';
@@ -11,11 +11,12 @@ document.title=g.title;document.querySelector('meta[property="og:title"]').conte
 const description=ui.en?'LED screens for trade shows and events. Choose your dates and request a custom quote.':'Des écrans LED pour vos salons et événements. Choisissez vos dates et demandez un devis personnalisé.';
 document.querySelector('meta[name="description"]').content=description;document.querySelector('meta[property="og:description"]').content=description;
 const format=cents=>money(cents,language);
+const dailyFormat=cents=>(Number.isInteger(cents)?'':'≈ ')+format(cents);
 const text=(selector,value)=>document.querySelectorAll(selector).forEach(e=>e.textContent=value);
-text('#pbNow',format(generic.pricing.one));text('#stkP',format(generic.pricing.one));
-text('[data-reference-tag]',g.referenceTag(generic.referenceDays));
-text('[data-reference-lead]',g.referenceLead(generic.referenceDays));
-text('[data-reference-description]',g.referenceDescription(generic.referenceDays));
+text('#pbNow',dailyFormat(dailyRentalPrice(generic,1)));text('#stkP',dailyFormat(dailyRentalPrice(generic,1)));
+text('[data-reference-tag]',g.referenceTag);
+text('[data-reference-lead]',g.referenceLead);
+text('[data-reference-description]',g.referenceDescription);
 for(const img of document.querySelectorAll('[data-brand-logo]'))img.src=platform.brand.logo;
 for(const link of document.querySelectorAll('[data-brand-website]'))link.href=platform.brand.website;
 for(const link of document.querySelectorAll('a[href^="mailto:"]')){link.href=`mailto:${platform.contact.email}`;if(link.textContent.includes('@'))(link.querySelector('span')||link).textContent=platform.contact.email}
@@ -30,9 +31,10 @@ text('[data-montage-duration-note]',ui.montageDurationNote);
 let count=3;
 function renderOffers(){
  for(const [index,screens]of [[1,1],[2,2],[3,count]]){
-  text(`[data-p="${index}"]`,format(referenceRentalPrice(generic,screens)));
+  const daily=dailyRentalPrice(generic,screens);
+  text(`[data-p="${index}"]`,dailyFormat(daily));
   const element=document.querySelector(`[data-p="${index}"]`).parentElement;
-  element.querySelector('.unit').textContent=(screens>1?`${format(referenceRentalPrice(generic,screens)/screens)}${ui.en?'/screen':'/écran'} · `:'')+g.unit(generic.referenceDays);
+  element.querySelector('.unit').textContent=(screens>1?`${dailyFormat(daily/screens)}${ui.en?'/screen':'/écran'} · `:'')+g.unit;
   const button=document.querySelector(`[data-b="${index}"]`);button.dataset.pack=screens;button.textContent=g.quote(screens);
  }
  text('#o3N',count);text('#o3Title',ui.screen(count));text('#o3Width',ui.width(count,count*platform.screen.widthCm));
@@ -60,12 +62,23 @@ for(let n=1;n<=generic.maxScreens;n++){const option=document.createElement('opti
 for(const choice of montageChoices){const option=document.createElement('option');option.value=choice;option.textContent=`${ui.montageLabel(choice)} · ${format(montagePrice(platform,1,choice,'regular'))}`;form.elements.montage.append(option)}
 function openInquiry(screens,trigger){
  if(dialog.open)return;returnFocus=trigger;form.elements.screens.value=screens;
- result.hidden=true;inquiryStatus.textContent=g.dates;setMinimumDates();dialog.showModal();
+ result.hidden=true;inquiryStatus.textContent=g.dates;setMinimumDates();renderEstimate();dialog.showModal();
 }
 document.addEventListener('click',e=>{const link=e.target.closest('[data-pack],[data-cta]');if(!link)return;e.preventDefault();openInquiry(Number(link.dataset.pack)||1,link)});
 document.getElementById('inquiryClose').onclick=()=>dialog.close();
 dialog.addEventListener('close',()=>{returnFocus?.focus({preventScroll:true})});
-form.addEventListener('input',()=>{result.hidden=true;inquiryStatus.textContent=g.dates;setMinimumDates()});
+function renderEstimate(){
+ const section=document.getElementById('inquiryEstimate');
+ if(!datesValid(form.elements.from.value,form.elements.through.value)){section.hidden=true;return}
+ try{
+  const estimate=computeGenericEstimate(generic,platform,Number(form.elements.screens.value),usageDays(form.elements.from.value,form.elements.through.value),form.elements.montage.value);
+  text('#inquiryDuration',g.duration(estimate.days));
+  text('[data-estimate-rental-label]',g.estimateRental);text('[data-estimate-design-label]',g.estimateDesign);
+  text('#inquiryRental',format(estimate.rentalCents));text('#inquiryDesignPrice',format(estimate.montageCents));text('#inquiryTotal',format(estimate.subtotalCents));
+  section.hidden=false;
+ }catch{section.hidden=true}
+}
+form.addEventListener('input',()=>{result.hidden=true;inquiryStatus.textContent=g.dates;setMinimumDates();renderEstimate()});
 form.onsubmit=async e=>{
  e.preventDefault();if(submitting||!form.reportValidity())return;
  const fields=Object.fromEntries(new FormData(form));
@@ -78,10 +91,11 @@ form.onsubmit=async e=>{
   // Les saisies ont pu changer pendant la lecture réseau : ne pas préparer un ancien récapitulatif.
   if(JSON.stringify(fields)!==JSON.stringify(Object.fromEntries(new FormData(form)))){inquiryStatus.textContent=g.dates;return}
   const available=availability?g.available(availability.remaining,availability.total):g.unknown;
-  inquiryStatus.textContent=availability&&availability.remaining<screens?g.insufficient:available;
-  const entries=[fields.name,fields.company,fields.email,fields.phone,fields.location,fields.from,fields.through,String(screens),ui.montageLabel(fields.montage),format(referenceRentalPrice(generic,screens)),format(montagePrice(platform,screens,fields.montage,'regular')),available,fields.notes];
-  const keys=[...g.summaryKeys];keys[9]=g.rentalSummaryLabel(generic.referenceDays);
-  const summary=g.summaryTitle+'\n\n'+entries.map((value,i)=>keys[i]+' : '+(value||'—')).join('\n')+'\n\n'+g.summaryNote;
+  inquiryStatus.textContent=(availability&&availability.remaining<screens?g.insufficient:available)+' '+g.availabilityNote;
+  const estimate=computeGenericEstimate(generic,platform,screens,usageDays(fields.from,fields.through),fields.montage);
+  const entries=[fields.name,fields.company,fields.email,fields.phone,fields.location,fields.from,fields.through,String(screens),ui.montageLabel(fields.montage),format(estimate.rentalCents),format(estimate.montageCents),available,fields.notes];
+  const keys=[...g.summaryKeys];keys[9]=g.rentalSummaryLabel(estimate.days);
+  const summary=g.summaryTitle+'\n\n'+entries.map((value,i)=>keys[i]+' : '+(value||'—')).join('\n')+'\n\n'+g.duration(estimate.days)+'\n'+g.estimateTotal+' : '+format(estimate.subtotalCents)+'\n\n'+g.summaryNote;
   document.getElementById('inquirySummary').value=summary;
   document.getElementById('inquiryMail').href=`mailto:${platform.contact.email}?subject=${encodeURIComponent(g.subject)}&body=${encodeURIComponent(summary)}`;
   result.hidden=false;

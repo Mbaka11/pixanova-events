@@ -6,6 +6,8 @@ Plateforme de location d’écrans LED : accueil générique avec demande de dev
 
 **Pour ChauCase :** forfaits de contenu **création graphique 149 $ / 5 h**, **motion design 249 $ / 10 h**, avant taxes et sans supplément selon la quantité. Tarifs early bird jusqu’au 15 décembre inclus (Montréal); ensuite **300 $ / 500 $** pour la création. Affichage simplifié : **−50 %** avec prix réguliers barrés; tarifs réguliers futurs, pas un historique de prix pratiqués. Accueil compact, modale sans jargon, nom du contact requis dans Stripe et confirmation avec résumé ligne par ligne. Livraison et installation affichées comme offertes, sans réduction fictive.
 
+**Accueil générique :** tarifs journaliers avant taxes, 265 $ pour 1 écran, 465 $ au total pour 2, environ 216,67 $ par écran dès 3. L’estimation utilise les jours calendaires d’utilisation (début et fin inclus), avec création ajoutée une seule fois; dates/frais logistiques et prix final confirmés au devis. Aucune réservation ni transaction Stripe dans ce parcours.
+
 ## Développement
 
 Node.js 22 ou plus récent.

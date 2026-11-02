@@ -19,7 +19,9 @@ Le contrôleur générique `public/js/generic.js` est distinct du contrôleur de
 
 ## Prix et conditions
 
-Les prix de location sont des **forfaits de référence de 3 jours** (`referenceDays: 3`, confirmé par l’opérateur), pas une tarification arbitraire à la journée. Le forfait d’un écran reste à 795 $, et non 695 $. Aucun prorata journalier n’est inventé. Le devis doit confirmer durée, lieu, frais logistiques éventuels, taxes et prix final. La page générique ne promet pas une installation gratuite partout. Aucune règle d’annulation propre à ChauCase ne s’applique automatiquement : les conditions sont précisées au devis avant engagement.
+**Tarification journalière approuvée : division par trois des références de 3 jours** (`referenceDays: 3`). Un écran : **265 $/jour** (795 $ / 3); deux écrans : **465 $/jour au total** (1395 $ / 3); dès trois : **environ 216,67 $ par écran/jour** (650 $ / 3). Aucun changement des forfaits ou promotions ChauCase.
+
+Les premiers et derniers jours **d’utilisation à l’événement** sont inclus, même si l’événement ne dure qu’une journée. La création (300 / 500 $) est ajoutée une seule fois, indépendamment du nombre de jours. L’estimation avant taxes se met à jour dans le formulaire et figure dans le courriel préparé. Pour ne pas cumuler les erreurs de centimes, le montant de location est calculé sur la référence exacte `prix_3_jours × jours / 3`, puis arrondi **une seule fois** au cent. Un prix journalier affiché fractionnaire est précédé de « ≈ »; le tarif journalier déjà arrondi n’est pas remultiplié. Le devis doit confirmer durée, lieu, frais logistiques éventuels, taxes et prix final. La page générique ne promet pas une installation gratuite partout. Aucune règle d’annulation propre à ChauCase ne s’applique automatiquement : les conditions sont précisées au devis avant engagement.
 
 La page d’accueil, le contact et la politique de confidentialité du site principal Pixanova ont été consultés. Aucune politique publique d’annulation/remboursement n’a été trouvée pendant cette vérification. Ne pas inventer de délai légal ou contractuel à partir de la confidentialité.
 
@@ -27,18 +29,18 @@ La page d’accueil, le contact et la politique de confidentialité du site prin
 
 `GET /api/availability` retourne seulement la capacité **lue en base** et `needsDates:true`, sans nombre de disponibles inventé.
 
-`GET /api/availability?from=2027-02-01&through=2027-02-04` vérifie les jours de livraison/installation jusqu’à la reprise/désinstallation **incluse**. Conversion en minuits du fuseau `America/Toronto`, y compris changements d’heure : période semi-ouverte `[1 février 00:00, 5 février 00:00[`. Le résultat vient du même parc Supabase et du même pic d’utilisation que les événements; réservations hors ligne incluses. Aucune réservation ni donnée personnelle n’est renvoyée.
+`GET /api/availability?from=2027-02-01&through=2027-02-04` vérifie la période demandée, premier et dernier jours **inclus**. Conversion en minuits du fuseau `America/Toronto`, y compris changements d’heure : période semi-ouverte `[1 février 00:00, 5 février 00:00[`. Le résultat vient du même parc Supabase et du même pic d’utilisation que les événements; réservations hors ligne incluses. Aucune réservation ni donnée personnelle n’est renvoyée.
 
-Le bloc public de disponibilité et ses champs ont été retirés de l’accueil pour alléger le parcours. Aucun appel de stock ni polling n’a lieu à l’ouverture de l’accueil. La disponibilité reste vérifiée uniquement à la préparation de la demande de devis, avec les dates du formulaire. Aucun écran n’est bloqué. Dates passées, incomplètes, inversées, non réelles ou trop longues refusées. Le serveur n’accepte pas un prix du navigateur et n’effectue aucune écriture.
+Le bloc public de disponibilité et ses champs ont été retirés de l’accueil pour alléger le parcours. Aucun appel de stock ni polling n’a lieu à l’ouverture de l’accueil. La disponibilité reste vérifiée uniquement à la préparation de la demande de devis, sur les jours d’utilisation demandés. Cette lecture est indicative : les dates et marges de livraison, montage et reprise doivent aussi être confirmées avant engagement, sans facturation automatique de ces jours logistiques. Aucun écran n’est bloqué. Dates passées, incomplètes, inversées, non réelles ou trop longues refusées. Le serveur n’accepte pas un prix du navigateur et n’effectue aucune écriture.
 
 Les 19 écrans disponibles pour ChauCase ne sont pas une disponibilité universelle : une autre période peut disposer de 20 écrans.
 
 ## Demande de devis
 
-Le formulaire recueille nom, courriel, entreprise/téléphone facultatifs, lieu, dates, nombre d’écrans, création et notes. Il revérifie le stock et prépare un récapitulatif lisible et un lien `mailto:`.
+Le formulaire recueille nom, courriel, entreprise/téléphone facultatifs, lieu, dates d’utilisation à l’événement, nombre d’écrans, création et notes. Il revérifie le stock et prépare un récapitulatif lisible et un lien `mailto:`.
 
 **Aucun envoi automatique, lead sauvegardé ou notification d’envoi fictive.** Le client doit envoyer son courriel via son application. Le récapitulatif peut être copié et envoyé à `info@pixanova.ca`; le formulaire de contact principal est également accessible. Aucune coordonnée n’est stockée dans la base, le navigateur via localStorage/sessionStorage, les URL de disponibilité ou les logs applicatifs. Pas de nouveau fournisseur d’email. Toute future collecte persistante ou livraison automatique est un changement distinct.
 
 ## QA
 
-`test/generic.test.mjs` couvre références de prix, bornes et fuseau des dates, 23/25 h aux changements d’heure, API sans dates, erreurs, confidentialité et séparation des parcours. Les tests existants continuent de vérifier le stock et le Checkout ChauCase. Contrôler aussi le rendu FR/EN à 320 / 390 / 1440 px, l’absence de liens vers la liste et du bloc disponibilité, les liens personnalisés ChauCase, le forfait 3 jours, le devis sans envoi, l’absence d’appels Checkout et le stock inchangé après les demandes.
+`test/generic.test.mjs` couvre références de prix, bornes et fuseau des dates, 23/25 h aux changements d’heure, API sans dates, erreurs, confidentialité et séparation des parcours. Les tests existants continuent de vérifier le stock et le Checkout ChauCase. Contrôler aussi le rendu FR/EN à 320 / 390 / 1440 px, l’absence de liens vers la liste et du bloc disponibilité, les liens personnalisés ChauCase, les prix journaliers et estimations pour 1/3 jours (dont arrondis fractionnaires et création une seule fois), le devis sans envoi, l’absence d’appels Checkout et le stock inchangé après les demandes.

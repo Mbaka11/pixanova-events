@@ -47,9 +47,9 @@
       </div>
       <div class="pt-row">
       <div class="pbox">
-        <div class="pb-top"><span class="pb-tag" data-reference-tag>Forfait 3 jours</span></div>
+        <div class="pb-top"><span class="pb-tag" data-reference-tag>Tarif journalier</span></div>
         <div class="pb-row"><b class="pb-now" id="pbNow"></b></div>
-        <span class="pb-sub">1 écran · avant taxes · devis personnalisé</span>
+        <span class="pb-sub">1 écran · par jour · avant taxes</span>
       </div>
       <ul class="trust"><li>Un devis adapté à vos dates et à votre lieu</li><li>Accompagnement pour vos visuels</li><li>Livraison et installation organisées avec vous</li></ul>
       </div>
@@ -268,7 +268,7 @@
     <div class="head center">
       <div class="eyebrow">Les offres</div>
       <h2>Choisissez vos écrans</h2>
-      <p class="lead" data-reference-lead>Forfaits de location de 3 jours, avant taxes. Le devis confirme la logistique et adapte le prix si votre durée change.</p>
+      <p class="lead" data-reference-lead>Louez à la journée, pour la durée dont vous avez besoin. Prix avant taxes; logistique confirmée au devis.</p>
     </div>
     <div class="offers" style="color:var(--ink)">
       <div class="offer">
@@ -378,7 +378,7 @@
 </section>
 <section class="s white" id="faq"><div class="wrap narrow">
  <div class="head center"><div class="eyebrow" style="color:#1D4FC4">Questions fréquentes</div><h2>L’essentiel avant de réserver</h2></div>
- <details><summary>Qu'est-ce qui est inclus dans le prix?</summary><p><span data-reference-description>Les tarifs de référence couvrent un forfait de location de 3 jours. Le devis précise la durée retenue, les frais logistiques éventuels et les services choisis. Les taxes s’ajoutent.</span></p></details>
+ <details><summary>Qu'est-ce qui est inclus dans le prix?</summary><p><span data-reference-description>La location dépend du nombre d’écrans et des jours d’utilisation à votre événement. La création est ajoutée une seule fois. La logistique, les taxes et le prix final sont confirmés au devis.</span></p></details>
  <details><summary>Je n'ai pas de visuels. Est-ce un problème?</summary><p>Vous pouvez fournir vos fichiers ou choisir un forfait de création. <a href="#montage">Comparez les deux forfaits et leurs exemples.</a></p></details>
  <details><summary>Combien d'écrans pour un kiosque 10 x 10?</summary><p>Trois écrans côte à côte couvrent presque toute la largeur d’un kiosque de 10 pieds. Le compteur permet d’ajuster votre réservation de 3 à 10 écrans.</p></details>
  <details><summary>Quels fichiers envoyer, et quand?</summary><p>JPEG, PNG ou MP4. Nous convenons ensemble de la date de remise et des dimensions selon le nombre d’écrans.</p></details>
@@ -411,7 +411,7 @@
 
 <div class="sticky" id="sticky">
   <div class="sk-top"><span class="sk-cd">Devis personnalisé</span></div>
-  <div class="sk-bot"><div class="sk-price"><b id="stkP"></b><span data-reference-tag>forfait 3 jours</span></div><a class="btn" href="#offres" data-cta>Demander un devis</a></div>
+  <div class="sk-bot"><div class="sk-price"><b id="stkP"></b><span data-reference-tag>par jour</span></div><a class="btn" href="#offres" data-cta>Demander un devis</a></div>
 </div>
 
 
@@ -426,10 +426,16 @@
    <label for="inquiryPhone">Téléphone<input id="inquiryPhone" name="phone" type="tel" autocomplete="tel" maxlength="40"></label>
    <label for="inquiryLocation">Lieu de l’événement<input id="inquiryLocation" name="location" maxlength="200" placeholder="Ville, salle ou adresse" required></label>
    <label for="inquiryScreens">Nombre d’écrans<select id="inquiryScreens" name="screens"></select></label>
-   <label for="inquiryFrom">Livraison / installation souhaitée<input id="inquiryFrom" name="from" type="date" required></label>
-   <label for="inquiryThrough">Reprise / désinstallation souhaitée<input id="inquiryThrough" name="through" type="date" required></label>
+   <label for="inquiryFrom">Début d’utilisation à l’événement<input id="inquiryFrom" name="from" type="date" required></label>
+   <label for="inquiryThrough">Fin d’utilisation à l’événement<input id="inquiryThrough" name="through" type="date" required></label>
   </div>
   <label for="inquiryDesign">Création de contenu<select id="inquiryDesign" name="montage"></select></label>
+  <p class="inquiry-logistics">Les dates et frais de livraison, d’installation et de reprise seront confirmés dans votre devis.</p>
+  <section id="inquiryEstimate" class="inquiry-estimate" aria-labelledby="inquiryEstimateTitle" aria-live="polite" hidden>
+   <h3 id="inquiryEstimateTitle">Estimation avant taxes</h3><p id="inquiryDuration"></p>
+   <dl><div><dt data-estimate-rental-label></dt><dd id="inquiryRental"></dd></div><div><dt data-estimate-design-label></dt><dd id="inquiryDesignPrice"></dd></div><div class="estimate-total"><dt>Total estimé</dt><dd id="inquiryTotal"></dd></div></dl>
+   <p>La création est ajoutée une seule fois. Logistique et prix final à confirmer au devis.</p>
+  </section>
   <label for="inquiryNotes">Précisions sur votre projet<textarea id="inquiryNotes" name="notes" rows="3" maxlength="500"></textarea></label>
   <p id="inquiryAvailability" role="status" aria-live="polite"></p>
   <button class="btn dark" type="submit">Préparer ma demande par courriel</button>

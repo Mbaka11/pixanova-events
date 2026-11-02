@@ -1,4 +1,5 @@
-// Disponibilité informative seulement : aucune allocation ni tarification à la durée.
+import {montagePrice} from './montage.mjs';
+// Estimation journalière sans allocation : arrondir la location une seule fois.
 export function validateGenericConfig(config) {
   if(!Number.isInteger(config?.maxScreens)||config.maxScreens<3||config.maxScreens>20)throw new Error('generic_config_invalid');
   if(!Number.isInteger(config.referenceDays)||config.referenceDays<1||config.referenceDays>365)throw new Error('generic_config_invalid');
@@ -9,6 +10,25 @@ export function validateGenericConfig(config) {
 export function referenceRentalPrice(config,screens) {
   if(!Number.isInteger(screens)||screens<1||screens>config.maxScreens)throw new RangeError('invalid_screens');
   return screens===1?config.pricing.one:screens===2?config.pricing.two:config.pricing.perScreen*screens;
+}
+export function dailyRentalPrice(config,screens) {
+  return referenceRentalPrice(config,screens)/config.referenceDays;
+}
+export function usageDays(from,through) {
+  if(!validDay(from)||!validDay(through)||from>through)throw new RangeError('invalid_dates');
+  const days=(Date.parse(through+'T00:00:00Z')-Date.parse(from+'T00:00:00Z'))/86400000+1;
+  if(!Number.isInteger(days)||days<1||days>366)throw new RangeError('invalid_dates');
+  return days;
+}
+export function computeGenericEstimate(config,platform,screens,days,montage='none') {
+  if(!Number.isInteger(days)||days<1||days>366)throw new RangeError('invalid_days');
+  const numerator=referenceRentalPrice(config,screens)*days;
+  if(!Number.isSafeInteger(numerator))throw new RangeError('invalid_amount');
+  const rentalCents=Math.round(numerator/config.referenceDays);
+  const montageCents=montagePrice(platform,screens,montage,'regular');
+  const subtotalCents=rentalCents+montageCents;
+  if(!Number.isSafeInteger(subtotalCents))throw new RangeError('invalid_amount');
+  return {screens,days,rentalCents,montageCents,subtotalCents,currency:platform.currency};
 }
 function validDay(day) {
   if(typeof day!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(day))return false;
