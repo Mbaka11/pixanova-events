@@ -21,16 +21,3 @@
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=86400"
-
-# Page de validation : accessible par URL directe, pas destinée aux moteurs.
-[[headers]]
-  for = "/test"
-  [headers.values]
-    X-Robots-Tag = "noindex, nofollow, noarchive"
-    Cache-Control = "no-store"
-
-[[headers]]
-  for = "/test/*"
-  [headers.values]
-    X-Robots-Tag = "noindex, nofollow, noarchive"
-    Cache-Control = "no-store"

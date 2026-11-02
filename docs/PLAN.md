@@ -73,10 +73,10 @@ Références : [CONTEXTE.md](CONTEXTE.md), [EVENEMENTS.md](EVENEMENTS.md).
 
 ## Page de validation de paiement
 
-- [x] `/test` FR/EN : paiement réel séparé de 1 CAD, aucune réservation d'écran, lien Stripe à prix fixe limité à une utilisation, non indexé et absent de la navigation.
-- [x] Commande opérateur de remboursement ciblée et idempotente, sans endpoint public de remboursement.
-- [ ] L'utilisateur effectue le paiement réel et vérifie les courriels Stripe ; aucun débit n'est lancé par les contrôles automatiques.
-- Détails : [PAIEMENT-TEST.md](PAIEMENT-TEST.md).
+- [x] Paiement réel de 1 CAD effectué par l'utilisateur via `/test` : reçu Stripe reçu, nom et courriel collectés, paiement intégralement remboursé.
+- [x] Page `/test` retirée et lien Stripe désactivé après validation.
+- [ ] Stripe → Public details : mettre « Pixanova » comme nom public (DBA) ; les reçus affichent encore le nom légal 9548-7849 QUEBEC INC.
+- [x] Badge « Powered by Netlify » désactivé (`built_with_badge_enabled=false`).
 
 ## 4. Validation métier et mise en ligne
 
