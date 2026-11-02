@@ -3,7 +3,7 @@ import catalog from './catalog-data.js';
 import { eventLabels, bookingIsOpen, currentPhase } from './events-shared.js';
 import { copy, money as formatMoney } from './i18n.mjs';
 import { montageHours, montagePrice } from './montage.mjs';
-import { language, homeUrl, localizeEvent, translateStaticDOM, installLanguageSwitcher } from './language.js';
+import { language, localizeEvent, translateStaticDOM, installLanguageSwitcher } from './language.js';
 const ui = copy(language);
 translateStaticDOM();
 
@@ -19,7 +19,7 @@ if (!event) {
   const title = document.createElement('h1');
   title.textContent = ui.missingEvent;
   const link = document.createElement('a');
-  link.href = homeUrl; link.textContent = ui.chooseEvent; link.className = 'btn';
+  link.href = language === 'en' ? '/evenements/?lang=en' : '/evenements/'; link.textContent = ui.chooseEvent; link.className = 'btn';
   main.append(title, link); document.body.append(main);
   installLanguageSwitcher();
   document.documentElement.classList.remove('event-loading');

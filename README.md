@@ -1,10 +1,10 @@
 # Pixanova Events
 
-Plateforme de location d’écrans LED pour exposants : un accueil pour choisir son événement, un modèle de page réutilisable et un serveur commun de réservation Stripe.
+Plateforme de location d’écrans LED : accueil générique avec demande de devis à `/`, liste des événements à `/evenements/`, et pages de salons avec réservation Stripe inchangées. Stock partagé Supabase selon les dates. Détails : [Accueil générique](docs/GENERIC-LANDING.md).
 
 **État : production active sur https://events.pixanova.ca.** Stripe réel, TPS/TVQ réelles, stock transactionnel Supabase LIVE et webhook réel raccordés. Checkout réel vérifié sans paiement, puis notre session expirée : stock 20 → 19 → 20. Le développement local reste en test, séparé du stock réel. Les courriels Stripe suffisent au périmètre retenu ; Resend est facultatif. Détails : [docs/SUPABASE-EVENTS.md](docs/SUPABASE-EVENTS.md).
 
-Forfaits de contenu : **création graphique 149 $ / 4 h**, **motion design 249 $ / 8 h**, avant taxes et sans supplément selon la quantité. Tarifs early bird jusqu’au 15 décembre inclus (Montréal); ensuite **300 $ / 500 $** pour la création. Affichage simplifié : **−50 %** avec prix réguliers barrés; tarifs réguliers futurs, pas un historique de prix pratiqués. Accueil compact, modale sans jargon, nom du contact requis dans Stripe et confirmation avec résumé ligne par ligne. Livraison et installation affichées comme offertes, sans réduction fictive.
+**Pour ChauCase :** forfaits de contenu **création graphique 149 $ / 4 h**, **motion design 249 $ / 8 h**, avant taxes et sans supplément selon la quantité. Tarifs early bird jusqu’au 15 décembre inclus (Montréal); ensuite **300 $ / 500 $** pour la création. Affichage simplifié : **−50 %** avec prix réguliers barrés; tarifs réguliers futurs, pas un historique de prix pratiqués. Accueil compact, modale sans jargon, nom du contact requis dans Stripe et confirmation avec résumé ligne par ligne. Livraison et installation affichées comme offertes, sans réduction fictive.
 
 ## Développement
 
@@ -15,7 +15,8 @@ npm ci
 npm run dev
 ```
 
-- Accueil : http://localhost:8080/
+- Accueil générique (devis, sans rabais) : http://localhost:8080/
+- Liste des événements : http://localhost:8080/evenements/
 - ChauCase : http://localhost:8080/evenement.html?event=chaucase-2027
 
 Rechargement automatique du HTML/CSS/JS, mais aussi de `config/` et `shared/`.
@@ -27,7 +28,7 @@ npm run build # génère les données publiques à partir de config/
 
 `npm run dev:full` lance le site avec les fonctions sur http://localhost:8888 (CLI Netlify incluse dans les dépendances). Pour le transfert des événements Stripe, lancer `npm run stripe:listen` dans un autre terminal. Voir [le guide de test Stripe local](docs/STRIPE-LOCAL.md).
 
-Le serveur statique seul sur le port 8080 ne fournit pas `/api/stock` : l’interface indique alors « Stock à confirmer » plutôt qu’un faux stock de 20.
+Le serveur statique seul sur le port 8080 ne fournit pas `/api/stock` ni `/api/availability` : l’interface indique alors « Stock à confirmer » plutôt qu’un faux stock de 20.
 
 ## Organisation
 

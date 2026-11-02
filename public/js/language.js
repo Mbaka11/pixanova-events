@@ -12,7 +12,8 @@ export function localizeEvent(event) {
   };
 }
 
-export function translateStaticDOM() {
+export function translateStaticDOM(extra = {}) {
+  const dictionary = { ...staticEnglish, ...extra };
   document.documentElement.lang = language === 'en' ? 'en-CA' : 'fr-CA';
   if (language !== 'en') return;
   const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
@@ -20,15 +21,15 @@ export function translateStaticDOM() {
     const node = walker.currentNode;
     if (node.parentElement.closest('script,style,noscript')) continue;
     const raw = node.textContent, key = raw.trim();
-    let translated = staticEnglish[key];
+    let translated = dictionary[key];
     if (translated === undefined && /^\d[\d ,\u00a0\u202f]* \$$/.test(key)) translated = money(Number(key.replace(/[^\d,]/g, '').replace(',','.')) * 100, language, key.includes(','));
     if (key === '5,0') translated = '5.0';
     if (translated !== undefined) node.textContent = raw.replace(key, translated);
   }
-  for (const node of document.querySelectorAll('[aria-label], [alt], [title]')) {
-    for (const attr of ['aria-label', 'alt', 'title']) {
+  for (const node of document.querySelectorAll('[aria-label], [alt], [title], [placeholder]')) {
+    for (const attr of ['aria-label', 'alt', 'title', 'placeholder']) {
       const value = node.getAttribute(attr);
-      if (staticEnglish[value]) node.setAttribute(attr, staticEnglish[value]);
+      if (dictionary[value]) node.setAttribute(attr, dictionary[value]);
     }
   }
 }
@@ -51,5 +52,5 @@ export function installLanguageSwitcher() {
   window.addEventListener('hashchange', () => {
     [...nav.children].forEach((link) => {link.href = languageUrl(location.href, link.lang);});
   });
-  document.querySelectorAll('a[href="/"]').forEach((link) => { if (!link.closest('.language-switch')) link.href = homeUrl; });
+  document.querySelectorAll('a[href="/"],a[href="/evenements/"]').forEach((link) => { if (!link.closest('.language-switch')) link.href = languageUrl(link.getAttribute('href'), language); });
 }
