@@ -14,7 +14,7 @@ Une plateforme réutilisable pour les salons : l’exposant choisit son événem
 - Français par défaut; anglais disponible via FR / EN et `?lang=en`. Interface, dates, prix, FAQ, consentement, animation SVG et libellés Checkout traduits. Les vidéos gardent leur audio d’origine, avec une mention sur la page anglaise.
 - Paiement : session Stripe Checkout calculée côté serveur, pas de douze liens.
 - Montage graphique facultatif **avant Stripe**, dans une modale récapitulative FR/EN. Sans montage par défaut; écrans et montage payés ensemble, aucune vente additionnelle après paiement.
-- Création graphique : **200 $ / 4 h incluses**; motion design : **400 $ / 10 h incluses**, avant taxes, quel que soit le nombre d’écrans. Aucun supplément dès 2 écrans ni taux horaire affiché. Tarifs et heures dans `config/platform.json`.
+- Création graphique : **149 $ / 4 h incluses**; motion design : **249 $ / 8 h incluses**, avant taxes, quel que soit le nombre d’écrans. Aucun supplément dès 2 écrans. Équivalents horaires affichés : 37,25 $/h et 31,13 $/h (forfaits fixes). Exemples : CNC 26 s, MAclinique 1 min 31 s; durée finale selon contenu, complexité et heures incluses. Tarifs et heures dans `config/platform.json`.
 - Parcours simplifié : accueil nom/date, modale sans jargon (« Continuer vers le paiement »), confirmation centrée avec reçu structuré et trois étapes.
 - Stripe : nom complet du contact requis en plus du courriel/téléphone, co-branding Pixanova × événement, ligne livraison/installation à 0 $ (« offertes »), sans prix barré inventé.
 

@@ -54,7 +54,7 @@ Références : [CONTEXTE.md](CONTEXTE.md), [EVENEMENTS.md](EVENEMENTS.md).
 
 - [x] Accueil compact : nom et dates, sans explications commerciales superflues.
 - [x] Modale FR/EN allégée : bouton « Continuer vers le paiement », aucun message technique ni supplément.
-- [x] Création graphique 200 $ / 4 h et motion design 400 $ / 10 h, sans variation par quantité; descriptions et FAQ coordonnées.
+- [x] Création graphique 149 $ / 4 h et motion design 249 $ / 8 h, sans variation par quantité; descriptions et FAQ coordonnées.
 - [x] Collecte native du nom complet et identité Pixanova × événement dans Stripe.
 - [x] Livraison/installation offertes : ligne Stripe à 0 $, badges dans le résumé, aucun prix barré inventé.
 - [x] Confirmation centrée, reçu structuré avec TPS/TVQ réellement payées, trois étapes et aucun faux check pour un impayé.

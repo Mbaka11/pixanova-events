@@ -37,7 +37,7 @@ Pour arrêter : Ctrl+C dans chaque terminal.
 ## Parcours
 
 1. Le bouton d’une offre ouvre le récapitulatif FR/EN. **Sans montage** est choisi par défaut.
-2. Choix facultatif : création graphique **200 $ / 4 h**, motion design **400 $ / 10 h**, avant taxes, sans supplément selon la quantité. Les trois fiches restent inchangées.
+2. Choix facultatif : création graphique **149 $ / 4 h**, motion design **249 $ / 8 h**, avant taxes, sans supplément selon la quantité. Les trois fiches restent inchangées.
 3. `/api/quote` calcule écrans, montage, TPS, TVQ et total sans bloquer de stock. Les taux Stripe doivent être actifs, exclusifs et correspondre aux pourcentages configurés.
 4. « Continuer vers le paiement » transmet événement, quantité, montage, langue et ancien total attendu. `/api/checkout` recalcule tout : un écart exige une nouvelle confirmation, sans créer de session. Le montant Stripe créé est aussi contrôlé.
 5. **Un seul Checkout et un seul paiement**, avec une ligne écrans, éventuellement une ligne création et une ligne livraison/installation à **0 $**. Nom complet, courriel, téléphone, kiosque et entreprise requis; adresse de facturation collectée. Le nom et le logo sont personnalisés par session.

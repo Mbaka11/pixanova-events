@@ -9,23 +9,23 @@ const event=getEvent('chaucase-2027'),early=()=>Date.parse('2026-11-01T12:00:00-
 const bodyRequest=(body)=>new Request('https://example.test/api/checkout',{method:'POST',body:JSON.stringify(body)});
 function fakeStripe(){const sessions=[],created=[];return{created,taxRates:{retrieve:async id=>({active:true,inclusive:false,percentage:id==='txr_tps'?5:9.975})},checkout:{sessions:{list:()=> (async function*(){for(const s of sessions)yield s;})(),create:async data=>{created.push(data);sessions.push({status:'open',metadata:data.metadata});return{id:'cs_test_order',url:'https://checkout.stripe.com/test',amount_total:data.line_items.reduce((sum,line)=>{const cents=line.quantity*line.price_data.unit_amount;return sum+cents+lineTax(cents,5)+lineTax(cents,9.975);},0)};},expire:async()=>{}}}};}
 
-test('création : forfaits fixes 200 $ / 400 $, sans supplément de 1 à 10 écrans',()=>{
+test('création : forfaits fixes 149 $ / 249 $, sans supplément de 1 à 10 écrans',()=>{
  for(const n of [1,2,3,10]){
   assert.equal(montagePrice(catalog.platform,n,'none'),0);
-  assert.equal(montagePrice(catalog.platform,n,'simple'),20000);
-  assert.equal(montagePrice(catalog.platform,n,'animated'),40000);
+  assert.equal(montagePrice(catalog.platform,n,'simple'),14900);
+  assert.equal(montagePrice(catalog.platform,n,'animated'),24900);
  }
  assert.equal(montageHours(catalog.platform,'none'),0);
  assert.equal(montageHours(catalog.platform,'simple'),4);
- assert.equal(montageHours(catalog.platform,'animated'),10);
+ assert.equal(montageHours(catalog.platform,'animated'),8);
 });
 test('prix actuels et arrondis par ligne compatibles avec les anciens montants aussi',()=>{
  const order=computeOrder(event,catalog.platform,2,'simple',early());
- assert.equal(order.rentalCents,109500);assert.equal(order.montageCents,20000);assert.equal(order.subtotalCents,129500);
- assert.equal(order.gstCents,6475);assert.equal(order.qstCents,12918);assert.equal(order.totalCents,148893);
+ assert.equal(order.rentalCents,109500);assert.equal(order.montageCents,14900);assert.equal(order.subtotalCents,124400);
+ assert.equal(order.gstCents,6220);assert.equal(order.qstCents,12409);assert.equal(order.totalCents,143029);
  assert.equal(computeOrder(event,catalog.platform,1,'none',early()).totalCents,68870);
- assert.equal(computeOrder(event,catalog.platform,1,'simple',early()).totalCents,91865);
- assert.equal(computeOrder(event,catalog.platform,1,'animated',early()).totalCents,114860);
+ assert.equal(computeOrder(event,catalog.platform,1,'simple',early()).totalCents,86001);
+ assert.equal(computeOrder(event,catalog.platform,1,'animated',early()).totalCents,97499);
  assert.equal(lineTax(109500,9.975)+lineTax(25000,9.975),13417);
  assert.notEqual(lineTax(134500,9.975),13417); // ancien forfait : ne pas arrondir le panier globalement
 });
@@ -36,12 +36,12 @@ test('options invalides et montants incohérents refusés',()=>{
 test('une seule session avec une ligne écrans et une ligne service, sans consommer plus de stock',async()=>{
  const stripe=fakeStripe();const handler=checkoutHandler(()=>stripe,early);
  const response=await handler(bodyRequest({eventId:event.id,screens:2,montage:'simple',montageCents:1,totalCents:1,language:'en'}));
- assert.equal(response.status,200);const data=await response.json();assert.equal(data.totalCents,148893);
+ assert.equal(response.status,200);const data=await response.json();assert.equal(data.totalCents,143029);
  assert.equal(stripe.created.length,1);const payload=stripe.created[0];assert.equal(payload.line_items.length,3);
- assert.equal(payload.line_items[0].price_data.unit_amount,109500);assert.equal(payload.line_items[1].price_data.unit_amount,20000);
+ assert.equal(payload.line_items[0].price_data.unit_amount,109500);assert.equal(payload.line_items[1].price_data.unit_amount,14900);
  assert.equal(payload.line_items[1].quantity,1);assert.equal(payload.line_items[1].price_data.product_data.name,'Graphic design');
  assert.equal(payload.line_items[2].price_data.unit_amount,0);assert.match(payload.line_items[2].price_data.product_data.name,/included/);
- assert.equal(payload.metadata.screens,'2');assert.equal(payload.metadata.montage,'simple');assert.equal(payload.metadata.montage_cents,'20000');assert.equal(payload.metadata.montage_hours,'4');
+ assert.equal(payload.metadata.screens,'2');assert.equal(payload.metadata.montage,'simple');assert.equal(payload.metadata.montage_cents,'14900');assert.equal(payload.metadata.montage_hours,'4');
  assert.equal(payload.metadata.logistics_included,'true');assert.deepEqual(payload.line_items[0].tax_rates,payload.line_items[1].tax_rates);
 });
 test('nom du contact natif, co-branding public et aucun logo localhost envoyé à Stripe',async()=>{
@@ -65,7 +65,7 @@ test('sans montage : aucune ligne payante supplémentaire',async()=>{
 });
 test('quote : aucun blocage de stock ni création de session',async()=>{
  const stripe=fakeStripe();const response=await quoteHandler(()=>stripe,early)(bodyRequest({eventId:event.id,screens:3,montage:'animated'}));
- assert.equal(response.status,200);const data=await response.json();assert.equal(data.montageCents,40000);assert.equal(data.montageHours,10);assert.equal(stripe.created.length,0);
+ assert.equal(response.status,200);const data=await response.json();assert.equal(data.montageCents,24900);assert.equal(data.montageHours,8);assert.equal(stripe.created.length,0);
 });
 test('total modifié entre le récapitulatif et le paiement : demander de confirmer à nouveau',async()=>{
  const stripe=fakeStripe();const response=await checkoutHandler(()=>stripe,early)(bodyRequest({eventId:event.id,screens:2,montage:'simple',expectedTotalCents:1}));
