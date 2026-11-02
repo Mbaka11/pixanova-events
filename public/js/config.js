@@ -54,10 +54,10 @@ if (!event) {
   document.querySelectorAll('[data-brand-logo]').forEach((img) => { img.src = platform.brand.logo; });
   document.querySelectorAll('[data-brand-website]').forEach((link) => { link.href = platform.brand.website; });
   document.querySelectorAll('a[href^="mailto:"]').forEach((link) => {
-    if (link.textContent.includes('@')) link.textContent = platform.contact.email;
+    if (link.textContent.includes('@')) (link.querySelector('span') || link).textContent = platform.contact.email;
     link.href = `mailto:${platform.contact.email}`;
   });
-  document.title = `${ui.pageTitle(labels.fullName)} | ${platform.name}`;
+  document.title = `${platform.brand.checkoutName || platform.name} ${labels.fullName}`;
   document.querySelector('meta[name="description"]').content = `${event.description} ${ui.included} ${labels.period}, ${event.city}.`;
   document.querySelector('meta[property="og:title"]').content = document.title;
   document.querySelector('meta[property="og:description"]').content = document.querySelector('meta[name="description"]').content;

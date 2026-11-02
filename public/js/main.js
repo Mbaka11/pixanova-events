@@ -198,7 +198,7 @@ function stkUpdate(){
 }
 window.addEventListener('scroll',stkUpdate,{passive:true});
 setInterval(stkUpdate,300);
-const JS=['s-offre','video','offres','preuves','comment','montage','faq','final'].map((id,i)=>[id,ui.journey[i]]);
+const JS=['s-offre','video','comment','offres','montage','preuves','faq','final'].map((id,i)=>[id,ui.journey[i]]);
 let jCurIdx=-1;
 function jGo(i){ const el=document.getElementById(JS[i][0]); if(!el) return; closeJ();
   if(i===0) window.scrollTo({top:0,behavior:'smooth'}); else el.scrollIntoView({behavior:'smooth',block:'start'}); }
