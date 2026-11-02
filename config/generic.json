@@ -1,5 +1,5 @@
 {
-  "pricing": { "one": 79500, "two": 139500, "perScreen": 65000 },
+  "pricing": { "one": 159000, "two": 279000, "perScreen": 130000 },
   "maxScreens": 10,
   "referenceDays": 3,
   "media": { "desktopVideo": "/assets/videos/vsl-desktop.mp4", "mobileVideo": "/assets/videos/vsl-mobile.mp4" }

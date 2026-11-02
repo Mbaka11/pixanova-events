@@ -1,5 +1,5 @@
 import {montagePrice} from './montage.mjs';
-// Estimation journalière sans allocation : arrondir la location une seule fois.
+// Prix journalier ferme au cent pour chaque quantité; même montant affiché et multiplié par les jours.
 export function validateGenericConfig(config) {
   if(!Number.isInteger(config?.maxScreens)||config.maxScreens<3||config.maxScreens>20)throw new Error('generic_config_invalid');
   if(!Number.isInteger(config.referenceDays)||config.referenceDays<1||config.referenceDays>365)throw new Error('generic_config_invalid');
@@ -12,7 +12,7 @@ export function referenceRentalPrice(config,screens) {
   return screens===1?config.pricing.one:screens===2?config.pricing.two:config.pricing.perScreen*screens;
 }
 export function dailyRentalPrice(config,screens) {
-  return referenceRentalPrice(config,screens)/config.referenceDays;
+  return Math.round(referenceRentalPrice(config,screens)/config.referenceDays);
 }
 export function usageDays(from,through) {
   if(!validDay(from)||!validDay(through)||from>through)throw new RangeError('invalid_dates');
@@ -22,13 +22,13 @@ export function usageDays(from,through) {
 }
 export function computeGenericEstimate(config,platform,screens,days,montage='none') {
   if(!Number.isInteger(days)||days<1||days>366)throw new RangeError('invalid_days');
-  const numerator=referenceRentalPrice(config,screens)*days;
-  if(!Number.isSafeInteger(numerator))throw new RangeError('invalid_amount');
-  const rentalCents=Math.round(numerator/config.referenceDays);
+  const dailyCents=dailyRentalPrice(config,screens);
+  const rentalCents=dailyCents*days;
+  if(!Number.isSafeInteger(rentalCents))throw new RangeError('invalid_amount');
   const montageCents=montagePrice(platform,screens,montage,'regular');
   const subtotalCents=rentalCents+montageCents;
   if(!Number.isSafeInteger(subtotalCents))throw new RangeError('invalid_amount');
-  return {screens,days,rentalCents,montageCents,subtotalCents,currency:platform.currency};
+  return {screens,days,dailyCents,rentalCents,montageCents,subtotalCents,currency:platform.currency};
 }
 function validDay(day) {
   if(typeof day!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(day))return false;

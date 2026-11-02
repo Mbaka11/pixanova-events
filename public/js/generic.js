@@ -11,7 +11,7 @@ document.title=g.title;document.querySelector('meta[property="og:title"]').conte
 const description=ui.en?'LED screens for trade shows and events. Choose your dates and request a custom quote.':'Des écrans LED pour vos salons et événements. Choisissez vos dates et demandez un devis personnalisé.';
 document.querySelector('meta[name="description"]').content=description;document.querySelector('meta[property="og:description"]').content=description;
 const format=cents=>money(cents,language);
-const dailyFormat=cents=>(Number.isInteger(cents)?'':'≈ ')+format(cents);
+const dailyFormat=format;
 const text=(selector,value)=>document.querySelectorAll(selector).forEach(e=>e.textContent=value);
 text('#pbNow',dailyFormat(dailyRentalPrice(generic,1)));text('#stkP',dailyFormat(dailyRentalPrice(generic,1)));
 text('[data-reference-tag]',g.referenceTag);
@@ -34,7 +34,7 @@ function renderOffers(){
   const daily=dailyRentalPrice(generic,screens);
   text(`[data-p="${index}"]`,dailyFormat(daily));
   const element=document.querySelector(`[data-p="${index}"]`).parentElement;
-  element.querySelector('.unit').textContent=(screens>1?`${dailyFormat(daily/screens)}${ui.en?'/screen':'/écran'} · `:'')+g.unit;
+  element.querySelector('.unit').textContent=g.unit;
   const button=document.querySelector(`[data-b="${index}"]`);button.dataset.pack=screens;button.textContent=g.quote(screens);
  }
  text('#o3N',count);text('#o3Title',ui.screen(count));text('#o3Width',ui.width(count,count*platform.screen.widthCm));
@@ -72,7 +72,7 @@ function renderEstimate(){
  if(!datesValid(form.elements.from.value,form.elements.through.value)){section.hidden=true;return}
  try{
   const estimate=computeGenericEstimate(generic,platform,Number(form.elements.screens.value),usageDays(form.elements.from.value,form.elements.through.value),form.elements.montage.value);
-  text('#inquiryDuration',g.duration(estimate.days));
+  text('#inquiryDuration',g.duration(estimate.days)+' · '+format(estimate.dailyCents)+(ui.en?'/day':'/jour'));
   text('[data-estimate-rental-label]',g.estimateRental);text('[data-estimate-design-label]',g.estimateDesign);
   text('#inquiryRental',format(estimate.rentalCents));text('#inquiryDesignPrice',format(estimate.montageCents));text('#inquiryTotal',format(estimate.subtotalCents));
   section.hidden=false;
