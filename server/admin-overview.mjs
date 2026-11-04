@@ -4,6 +4,7 @@ import {createInventoryDb,stripeEnvironment} from './lib/inventory-db.mjs';
 import {getStripe} from './lib/http.mjs';
 import {catalog,INVENTORY_POOL} from './lib/config.mjs';
 import {reservationSummary,stripeSummary} from './lib/admin-metrics.mjs';
+import {summarizeInteractions} from '../shared/admin-view.mjs';
 export const makeHandler=({authFactory=createAdminAuth,dbFactory=createInventoryDb,stripeFactory=()=>getStripe({timeout:5000,maxNetworkRetries:0}),env=process.env,now=Date.now}={})=>async req=>{
  let cookie;
  try{
@@ -14,7 +15,10 @@ export const makeHandler=({authFactory=createAdminAuth,dbFactory=createInventory
   const db=dbFactory();await limitRequest(db,req,'admin-report',30,60,env);
   const environment=stripeEnvironment(env.STRIPE_SECRET_KEY),until=new Date(now()).toISOString(),since=new Date(now()-days*86400000).toISOString();
   const [telemetry,business,stripe]=await Promise.all([
-   (async()=>{try{const report=await db.rpc('events_analytics_report',{p_environment:environment,p_since:since,p_event_id:eventId});if(!report||typeof report!=='object')throw new Error('invalid_report');return {available:true,enabled:env.EVENTS_ANALYTICS_ENABLED==='true',report}}catch{return {available:false,enabled:false,error:'analytics_unavailable'}}})(),
+   (async()=>{try{const report=await db.rpc('events_analytics_report',{p_environment:environment,p_since:since,p_event_id:eventId});if(!report||typeof report!=='object')throw new Error('invalid_report');
+    let interactions;
+    try{const rows=await db.request(`events_analytics_events?environment=eq.${environment}&created_at=gte.${encodeURIComponent(since)}&created_at=lte.${encodeURIComponent(until)}${eventId?'&event_id=eq.'+encodeURIComponent(eventId):''}&name=in.(cta_click,section_view)&select=name,session_id,props&order=created_at.desc&limit=1000`);interactions={available:true,truncated:rows.length===1000,sections:summarizeInteractions(rows)}}catch{interactions={available:false}}
+    return {available:true,enabled:env.EVENTS_ANALYTICS_ENABLED==='true',report,interactions}}catch{return {available:false,enabled:false,error:'analytics_unavailable'}}})(),
    (async()=>{try{
     const rows=[];let truncated=false;
     for(let offset=0;offset<2000;offset+=500){
@@ -39,7 +43,7 @@ export const makeHandler=({authFactory=createAdminAuth,dbFactory=createInventory
    events:[{id:'generic',name:'Accueil générique'},...catalog.events.map(e=>({id:e.id,name:`${e.name} ${e.edition}`}))],
    telemetry,business,stripe,
    integrations:{netlify:{status:'external',url:'https://app.netlify.com/projects/pixanova-events-test/analytics',note:'Statistiques disponibles selon votre abonnement Netlify; pas d’API Web Analytics publique stable.'},
-    clarity:{configured:!!catalog.platform.analytics.clarity,url:'https://clarity.microsoft.com/',projectId:catalog.platform.analytics.clarity||null},ga4:{configured:!!catalog.platform.analytics.ga4,url:'https://analytics.google.com/'}},
+    clarity:{configured:!!catalog.platform.analytics.clarity,url:catalog.platform.analytics.clarity?`https://clarity.microsoft.com/projects/view/${catalog.platform.analytics.clarity}/dashboard`:'https://clarity.microsoft.com/',heatmapsUrl:catalog.platform.analytics.clarity?`https://clarity.microsoft.com/projects/view/${catalog.platform.analytics.clarity}/heatmaps`:null,recordingsUrl:catalog.platform.analytics.clarity?`https://clarity.microsoft.com/projects/view/${catalog.platform.analytics.clarity}/recordings`:null,projectId:catalog.platform.analytics.clarity||null},ga4:{configured:!!catalog.platform.analytics.ga4,url:'https://analytics.google.com/'}},
    notes:['Comportements mesurés uniquement après consentement; ce ne sont pas toutes les visites du site.','Encaissements Stripe TTC, remboursements déduits, pour les sessions créées dans la période; ce n’est pas une marge ni un chiffre d’affaires HT.','Un récapitulatif fermé n’est pas un paiement annulé. Les sessions expirées sont distinguées.','Une demande préparée ou un clic courriel ne prouve pas l’envoi d’une soumission. Aucun envoi automatique n’est encore raccordé.','Les estimations de paniers sont déclarées par le navigateur; les paiements proviennent de Stripe.']},200,cookie);
  }catch(error){return adminJSON({error:error instanceof AdminError?error.message:'admin_unavailable'},error instanceof AdminError?error.status:503,cookie)}
 };

@@ -18,6 +18,7 @@
 /public/js/generic-shared.mjs
 /public/js/generic-i18n.mjs
 /public/js/analytics-shared.mjs
+/public/admin/view-data.mjs
 
 # Netlify (CLI locale)
 .netlify/

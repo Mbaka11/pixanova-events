@@ -58,6 +58,14 @@ test('rapport admin : sources séparées, absence de faux zéro en panne et filt
  assert.equal(response.status,200);assert.equal(body.telemetry.available,false);assert.equal(body.stripe.available,false);assert.equal(body.stripe.netCents,undefined);assert.equal(body.business.available,true);assert.equal(body.business.counts.total,0);assert.equal(JSON.stringify(body).includes('private'),false);assert.equal(body.integrations.netlify.status,'external');
  const before=reads;assert.equal((await handler(new Request('https://example.test/api/admin/overview?days=90'))).status,400);assert.equal(reads,before);
 });
+test('rapport visuel : clics agrégés sans identifiants et liens vers le bon projet Clarity',async()=>{
+ const db={rpc:async name=>name==='events_allow_request'?true:{totals:{views:1,sessions:1},days:[],funnel:[],pages:[],sources:[],carts:[]},request:async path=>path.startsWith('events_analytics_events')?[{name:'section_view',session_id:'private-user-session',props:{section:'offres'}},{name:'cta_click',session_id:'private-user-session',props:{section:'offres'}}]:[]};
+ const stripeFactory=()=>({checkout:{sessions:{list:async()=>({data:[],has_more:false})}}});
+ const handler=reportHandler({authFactory:()=>({require:async()=>({user:{id,email}})}),env:{STRIPE_SECRET_KEY:'sk_live_unit',ADMIN_SESSION_SECRET:'unit-key'},dbFactory:()=>db,stripeFactory});
+ const response=await handler(new Request('https://example.test/api/admin/overview?days=7'));const data=await response.json();assert.equal(response.status,200);
+ assert.equal(data.telemetry.interactions.sections.find(x=>x.section==='offres').clicks,1);assert.equal(data.telemetry.interactions.sections.find(x=>x.section==='offres').seenSessions,1);assert.equal(JSON.stringify(data).includes('private-user-session'),false);
+ assert.match(data.integrations.clarity.heatmapsUrl,/\/projects\/view\/z8gf7eons0\/heatmaps$/);assert.match(data.integrations.clarity.recordingsUrl,/\/recordings$/);
+});
 test('réservations : hors ligne séparées, pas de fausse recette et aucun snapshot client exposé',()=>{
  const data=reservationSummary([{id:'one',event_id:'chaucase-2027',screens:1,state:'held',expected_total_cents:0,order_snapshot:{source:'offline',customer_email:'private@example.test'}},{id:'two',event_id:'chaucase-2027',screens:2,state:'released',release_reason:'session_expired',expected_total_cents:125898,order_snapshot:{price:{montage:'simple'},secret:'private'}}]);
  assert.equal(data.counts.offline,1);assert.equal(data.counts.held,0);assert.equal(data.counts.expired,1);assert.equal(data.reservations[0].expectedTotalCents,null);assert.equal(JSON.stringify(data).includes('private'),false);

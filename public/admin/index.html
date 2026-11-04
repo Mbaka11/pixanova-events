@@ -1,49 +1,39 @@
 <!doctype html>
-<html lang="fr-CA">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex,nofollow"><title>Administration | Pixanova Events</title>
-<link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="/admin/admin.css">
-</head>
-<body>
+<html lang="fr-CA"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
+<title>Administration | Pixanova Events</title><link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="/admin/admin.css">
+</head><body>
 <header><a href="/"><img src="/assets/images/px-crop-sm.png" alt="Pixanova"></a><span>Pilotage Events</span><button id="logout" hidden>Se déconnecter</button></header>
 <main>
-<section id="login" class="login card" aria-labelledby="loginTitle">
- <span class="eyebrow">Accès privé</span><h1 id="loginTitle">Administration Events</h1>
- <p>Statistiques, parcours et réservations. Compte administrateur autorisé uniquement.</p>
- <form id="loginForm"><label for="email">Courriel<input id="email" name="email" type="email" autocomplete="username" required></label><label for="password">Mot de passe<input id="password" name="password" type="password" autocomplete="current-password" required></label><button type="submit">Se connecter</button></form>
- <p id="loginStatus" role="status" aria-live="polite"></p>
-</section>
+<section id="login" class="login card" aria-labelledby="loginTitle"><span class="eyebrow">Accès privé</span><h1 id="loginTitle">Administration Events</h1><p>Vos visiteurs, leurs choix et vos réservations, au même endroit.</p>
+<form id="loginForm" method="post" action="/api/admin/auth"><label for="email">Courriel<input id="email" name="email" type="email" autocomplete="username" required></label><label for="password">Mot de passe<input id="password" name="password" type="password" autocomplete="current-password" required></label><button type="submit">Se connecter</button></form><p id="loginStatus" role="status" aria-live="polite"></p></section>
 <section id="dashboard" hidden aria-labelledby="dashboardTitle">
- <div class="heading"><div><span class="eyebrow">Administration</span><h1 id="dashboardTitle">Le point sur vos événements</h1><p id="account"></p></div><span class="badge" id="environment"></span></div>
- <div class="filters card"><label for="days">Période<select id="days"><option value="1">Dernières 24 heures</option><option value="7">7 derniers jours</option><option value="30" selected>30 derniers jours</option></select></label><label for="event">Page / événement<select id="event"><option value="">Toutes les pages</option></select></label><button id="refresh">Actualiser</button><span id="updated"></span></div>
- <p id="reportStatus" role="status" aria-live="polite"></p>
- <nav class="tabs" role="tablist" aria-label="Sections du tableau de bord">
-  <button id="tab-overview" role="tab" aria-controls="overview" aria-selected="true">Vue d’ensemble</button><button id="tab-journey" role="tab" aria-controls="journey" aria-selected="false">Parcours et paniers</button><button id="tab-marketing" role="tab" aria-controls="marketing" aria-selected="false">Marketing</button><button id="tab-reservations" role="tab" aria-controls="reservations" aria-selected="false">Réservations</button><button id="tab-settings" role="tab" aria-controls="settings" aria-selected="false">Connexions et accès</button>
- </nav>
- <section id="overview" role="tabpanel" aria-labelledby="tab-overview">
-  <div id="metrics" class="metrics"></div>
-  <div class="grid"><article class="card"><h2>Navigation mesurée</h2><p>Visites enregistrées avec consentement, pas l’ensemble du trafic Netlify.</p><div id="trend"></div></article><article class="card"><h2>État des sessions Stripe</h2><p>Sessions créées pendant la période, état actuel. Périmètre du parc Pixanova seulement.</p><div id="payments"></div></article></div>
-  <article class="card"><h2>À lire avant de comparer les chiffres</h2><ul id="notes"></ul></article>
- </section>
- <section id="journey" role="tabpanel" aria-labelledby="tab-journey" hidden>
-  <article class="card"><h2>Étapes du parcours</h2><p>Sessions pseudonymisées ayant atteint chaque étape après consentement. Une fermeture n’est pas une annulation de réservation.</p><div id="funnel"></div></article>
-  <article class="card"><h2>Dernières sélections et récapitulatifs</h2><p>50 derniers états observés. Estimations du navigateur, pas des paiements. Aucune identité client collectée ici.</p><div id="carts"></div></article>
- </section>
- <section id="marketing" role="tabpanel" aria-labelledby="tab-marketing" hidden>
-  <article class="card"><h2>Pages et événements</h2><div id="pages"></div></article>
-  <article class="card"><h2>Sources et campagnes</h2><p>Sources déclarées sur les pages vues consenties. Pas d’attribution automatique des revenus aux campagnes.</p><div id="sources"></div></article>
-  <article class="card"><h2>Comprendre les clics</h2><p>Clarity apporte les cartes de chaleur et les relectures de navigation, une fois le projet configuré. Les champs et récapitulatifs sont masqués. Les paiements et les pages admin ne sont pas enregistrés.</p><a href="https://clarity.microsoft.com/" target="_blank" rel="noopener noreferrer">Ouvrir Microsoft Clarity</a></article>
- </section>
- <section id="reservations" role="tabpanel" aria-labelledby="tab-reservations" hidden>
-  <article class="card"><h2>Réservations de la période</h2><p id="reservationCounts"></p><p>Une réservation hors ligne ne signifie pas qu’un paiement a été encaissé. Les montants ci-dessous sont ceux des récapitulatifs, pas un total comptable.</p><div id="orders"></div></article>
- </section>
- <section id="settings" role="tabpanel" aria-labelledby="tab-settings" hidden>
-  <div id="integrations" class="grid"></div>
-  <article class="card"><h2>Protection et conservation</h2><p>Un rôle admin unique. Accès contrôlé côté serveur, sessions privées, aucun mot de passe dans le navigateur après connexion. Comportements conservés 30 jours; limitation anti-abus nettoyée après un jour. Aucune coordonnée ni texte de formulaire dans les événements statistiques.</p><p>Le formulaire public prépare encore un courriel : il ne constitue pas une soumission reçue et enregistrée. L’envoi direct Microsoft 365 reste un raccordement distinct.</p></article>
-  <article class="card"><h2>Changer mon mot de passe</h2><form id="passwordForm" class="password-form"><label for="currentPassword">Mot de passe actuel<input id="currentPassword" name="currentPassword" type="password" autocomplete="current-password" required></label><label for="newPassword">Nouveau mot de passe — 14 caractères minimum<input id="newPassword" name="newPassword" type="password" minlength="14" maxlength="128" autocomplete="new-password" required></label><button type="submit">Enregistrer et me reconnecter</button></form><p id="passwordStatus" role="status"></p></article>
- </section>
+<div class="heading"><div><span class="eyebrow">Vos résultats</span><h1 id="dashboardTitle">Que font vos visiteurs ?</h1><p id="account"></p></div><span class="badge" id="environment"></span></div>
+<div class="filters card"><label for="days">Période<select id="days"><option value="1">Dernières 24 heures</option><option value="7">7 derniers jours</option><option value="30" selected>30 derniers jours</option></select></label><label for="event">Page à analyser<select id="event"><option value="">Toutes les pages</option></select></label><button id="refresh">Actualiser</button><span id="updated"></span></div>
+<p id="reportStatus" role="status" aria-live="polite"></p>
+<nav class="tabs" role="tablist" aria-label="Sections du tableau de bord"><button id="tab-overview" role="tab" aria-controls="overview" aria-selected="true">En un coup d’œil</button><button id="tab-journey" role="tab" aria-controls="journey" aria-selected="false">Parcours et paniers</button><button id="tab-marketing" role="tab" aria-controls="marketing" aria-selected="false">Ce qui attire</button><button id="tab-reservations" role="tab" aria-controls="reservations" aria-selected="false">Réservations</button><button id="tab-settings" role="tab" aria-controls="settings" aria-selected="false">Mon compte</button></nav>
+<section id="overview" role="tabpanel" aria-labelledby="tab-overview">
+ <article class="card takeaway"><span class="eyebrow">À retenir</span><h2 id="takeawayTitle">Vos premières mesures</h2><p id="takeawayText"></p><p id="sampleNote" class="sample-note"></p></article>
+ <div id="metrics" class="metrics"></div>
+ <div class="grid"><article class="card"><h2>Les visites augmentent-elles ?</h2><p>Pages vues chaque jour, après accord du visiteur.</p><div id="trend"></div></article><article class="card"><h2>Jusqu’où va-t-on dans la page ?</h2><p>Nombre de sessions ayant vu chaque section.</p><div id="reachChart"></div></article></div>
+ <div class="grid"><article class="card"><h2>Quels écrans intéressent ?</h2><p>Choix observés dans les 50 derniers récapitulatifs suivis, pas des achats.</p><div id="packChart"></div></article><article class="card"><h2>Quelle création est choisie ?</h2><p>Dernier choix observé dans ces mêmes récapitulatifs.</p><div id="designChart"></div></article></div>
+ <details class="card"><summary>Comment lire ces chiffres ?</summary><ul id="notes"></ul></details>
 </section>
-</main>
-<script type="module" src="/admin/admin.js"></script>
-</body></html>
+<section id="journey" role="tabpanel" aria-labelledby="tab-journey" hidden>
+ <div id="funnel" class="grid"><article id="rentalJourney" class="card"><h2>De la sélection au paiement</h2><p>Sessions ayant atteint chaque étape sur les pages avec paiement. Ce sont des étapes observées, pas des commandes payées.</p><div id="rentalFunnel"></div></article><article id="quoteJourney" class="card"><h2>De la visite à la demande de devis</h2><p>Un courriel préparé ou ouvert n’est pas forcément envoyé.</p><div id="quoteFunnel"></div></article></div>
+ <article class="card"><h2>Et côté paiements réels ?</h2><p>Source Stripe, séparée des clics mesurés. Les visites sans consentement ne sont pas dans le tunnel ci-dessus.</p><div id="paymentChart"></div><details><summary>Voir le détail des paiements</summary><div id="payments"></div></details></article>
+ <article class="card"><h2>Quels choix retrouve-t-on dans les paniers ?</h2><p>Dernier état de chaque parcours suivi. Fermer un récapitulatif ne signifie pas annuler une réservation.</p><div id="carts"></div><details><summary>Détail des interactions mesurées</summary><div id="funnelDetails"></div></details></article>
+</section>
+<section id="marketing" role="tabpanel" aria-labelledby="tab-marketing" hidden>
+ <div class="grid"><article class="card"><h2>Sur quelles pages vient-on ?</h2><div id="pagesChart"></div><details><summary>Voir les chiffres par page</summary><div id="pages"></div></details></article><article class="card"><h2>D’où viennent les visites ?</h2><p>Provenance des pages vues mesurées. Pas d’attribution automatique des ventes.</p><div id="sourceChart"></div></article></div>
+ <article class="card"><h2>Quels boutons font réagir ?</h2><p>Clics sur les boutons de devis et de réservation, regroupés par section.</p><div id="clickChart"></div><p id="interactionNote" class="chart-caption"></p></article>
+ <article id="clarityCard" class="card" hidden><h2>Voir les clics directement sur la page</h2><p>Clarity est un outil séparé : les cartes de chaleur montrent les zones cliquées; les relectures montrent une navigation. Il ne compte pas les paiements.</p><div id="clarityActions" class="tool-actions"></div><p class="chart-caption">Utilise le compte Microsoft qui a créé le projet. Seules les visites des pages publiques ayant accepté les statistiques peuvent y apparaître; l’admin n’est jamais enregistré. L’affichage des nouvelles données peut prendre du temps.</p></article>
+ <details id="sourceDetails" class="card"><summary>Détail des sources et campagnes</summary><div id="sources"></div></details>
+</section>
+<section id="reservations" role="tabpanel" aria-labelledby="tab-reservations" hidden><article class="card"><h2>Réservations de la période</h2><p id="reservationCounts"></p><p>Les réservations hors ligne sont séparées des paiements Stripe. Les montants ci-dessous sont ceux des récapitulatifs, pas un total comptable.</p><div id="orders"></div></article></section>
+<section id="settings" role="tabpanel" aria-labelledby="tab-settings" hidden>
+ <article class="card"><h2>Mon accès</h2><p>Cette page sert à gérer ton compte, pas à lire les statistiques. Un seul rôle admin donne accès à l’ensemble du tableau.</p><form id="passwordForm" class="password-form" method="post" action="/api/admin/auth"><label for="currentPassword">Mot de passe actuel<input id="currentPassword" name="currentPassword" type="password" autocomplete="current-password" required></label><label for="newPassword">Nouveau mot de passe — 14 caractères minimum<input id="newPassword" name="newPassword" type="password" minlength="14" maxlength="128" autocomplete="new-password" required></label><button type="submit">Enregistrer et me reconnecter</button></form><p id="passwordStatus" role="status"></p></article>
+ <details class="card"><summary>Outils externes et réglages avancés (facultatif)</summary><div id="integrations"></div></details>
+ <details class="card"><summary>Confidentialité et limites</summary><p>Les comportements sont mesurés après consentement, sans coordonnées ni textes saisis. Conservation : 30 jours. Les paiements viennent de Stripe. La demande de devis prépare encore un courriel manuel; elle ne prouve pas qu’une soumission a été reçue.</p><a href="/confidentialite/" target="_blank" rel="noopener noreferrer">Lire la notice de confidentialité</a></details>
+</section>
+</section></main><script type="module" src="/admin/admin.js"></script></body></html>

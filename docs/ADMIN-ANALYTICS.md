@@ -23,6 +23,18 @@ Variables serveur : `SUPABASE_URL`, `SUPABASE_SECRET_KEY` existantes, `EVENTS_AD
 
 La clé locale Stripe reste TEST; la configuration Netlify Production reste LIVE. Le bootstrap ne change pas les clés Stripe, le stock ou les webhooks.
 
+## Lecture simple du tableau
+
+- **En un coup d’œil** : résumé « À retenir », visites suivies, ouvertures de panier/devis, paiements et encaissements. Graphiques des pages vues par jour, sections atteintes, écrans et créations choisis.
+- **Parcours et paniers** : tunnel visuel des récapitulatifs et passages vers Stripe, séparé des paiements confirmés. Le devis a son propre parcours; préparation ou clic courriel ne prouve pas un envoi.
+- **Ce qui attire** : graphiques des pages, sources et clics sur les CTA. Les cartes de chaleur et relectures s’ouvrent directement dans le bon projet Clarity, avec un compte Microsoft ayant accès à ce projet.
+- **Réservations** : enregistrements de la période, dont hors ligne, sans faux encaissement.
+- **Mon compte** : changement de mot de passe. Les réglages techniques sont repliés; Google Analytics n’est pas affiché tant qu’il n’est pas configuré. Netlify reste un outil externe facultatif.
+
+Aucun faux historique ni donnée de démonstration en production. Une seule journée mesurée donne une barre réelle, pas une courbe inventée. Les états vides expliquent comment les mesures apparaissent et les pannes ne donnent pas de faux zéros. Le résumé avertit lorsqu’il y a peu de sessions, sans recommander de décisions commerciales à partir d’une visite.
+
+Les graphiques de clics et de profondeur lisent au maximum 1000 observations de la période (limite signalée), agrégées côté serveur. Les identifiants de session ne sont pas renvoyés dans ces agrégats. Aucune nouvelle migration n’est nécessaire pour cette présentation.
+
 ## Accès et sécurité
 
 - Sessions Supabase vérifiées côté serveur, cookie **chiffré AES-256-GCM**, HttpOnly, Secure, SameSite=Strict, préfixe `__Host-`, durée absolue maximale huit heures; rafraîchissement privé du jeton sans exposition JavaScript.
@@ -65,6 +77,8 @@ Netlify documente les visites/pages/sources agrégées depuis les logs serveur, 
 ## Microsoft Clarity et GA4
 
 Le projet Clarity **`z8gf7eons0`**, fourni par l’utilisateur pour `events.pixanova.ca`, est configuré dans `config/platform.json > analytics.clarity`. L’ajout de ce fournisseur redemande le consentement aux visiteurs qui avaient seulement accepté les statistiques internes. Vérifier dans le projet Clarity les réglages de masquage strict et de cookies désactivés par défaut; ces paramètres du compte ne sont pas modifiés par le déploiement. Vider l’ID puis redéployer désactive Clarity sur le site. L’ID n’est pas un secret; aucun mot de passe Microsoft requis par le site. Pas d’installation d’extension navigateur ou de paquet supplémentaire nécessaire.
+
+Diagnostic réel effectué après consentement : script et SDK reçus en HTTP200, requêtes de collecte acceptées par Clarity en HTTP204, consentement analytics accordé et publicité refusée. La visite QA publique ne contenait aucune saisie privée et portait le tag `qa=pixanova_integration_check`; les événements internes QA ont été interceptés. Cela ne prouve pas à lui seul l’apparition d’un enregistrement dans le compte privé Clarity : traitement et filtrage des robots peuvent intervenir.
 
 Le script Clarity se charge uniquement après consentement avec `consentv2`, stockage analytics accordé et stockage publicitaire refusé. Inputs, textareas, selects, dialogues et confirmation sont masqués. Le lien de composition courriel ne contient aucune coordonnée client dans son attribut `href` : son contenu prérempli est gardé en mémoire et utilisé uniquement au clic explicite. Les pages admin et URL de confirmation avec `session_id`/`merci` n’initialisent aucun fournisseur. Retirer l’accord stoppe la collecte interne et recharge sans fournisseurs facultatifs. Ne jamais ajouter de paramètres personnels dans les campagnes.
 
