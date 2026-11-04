@@ -23,6 +23,9 @@ export function validateCatalog(input) {
   assert(platform.montage?.multipleScreensExtraCents === 0, 'Les forfaits de création n’ont pas de supplément par écran');
   for (const key of ['simpleHours', 'animatedHours']) assert(Number.isSafeInteger(platform.montage?.[key]) && platform.montage[key] > 0, `Montage : ${key} invalide`);
   for (const key of ['gstPercent', 'qstPercent']) assert(typeof platform.taxes?.[key] === 'number' && platform.taxes[key] > 0 && platform.taxes[key] < 100 && Number.isInteger(platform.taxes[key] * 1000), `Taxe ${key} invalide`);
+  assert(typeof platform.analytics?.enabled === 'boolean', 'Activation analytics invalide');
+  if(platform.analytics.clarity) assert(/^[a-zA-Z0-9]{5,30}$/.test(platform.analytics.clarity), 'Identifiant Clarity invalide');
+  if(platform.analytics.ga4) assert(/^G-[A-Z0-9]{6,20}$/.test(platform.analytics.ga4), 'Identifiant GA4 invalide');
   assert(Array.isArray(events), 'Liste des événements requise');
   const ids = new Set();
   for (const event of events) {

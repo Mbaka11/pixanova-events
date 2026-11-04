@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="fr-CA">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>Administration | Pixanova Events</title>
+<link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body>
+<header><a href="/"><img src="/assets/images/px-crop-sm.png" alt="Pixanova"></a><span>Pilotage Events</span><button id="logout" hidden>Se déconnecter</button></header>
+<main>
+<section id="login" class="login card" aria-labelledby="loginTitle">
+ <span class="eyebrow">Accès privé</span><h1 id="loginTitle">Administration Events</h1>
+ <p>Statistiques, parcours et réservations. Compte administrateur autorisé uniquement.</p>
+ <form id="loginForm"><label for="email">Courriel<input id="email" name="email" type="email" autocomplete="username" required></label><label for="password">Mot de passe<input id="password" name="password" type="password" autocomplete="current-password" required></label><button type="submit">Se connecter</button></form>
+ <p id="loginStatus" role="status" aria-live="polite"></p>
+</section>
+<section id="dashboard" hidden aria-labelledby="dashboardTitle">
+ <div class="heading"><div><span class="eyebrow">Administration</span><h1 id="dashboardTitle">Le point sur vos événements</h1><p id="account"></p></div><span class="badge" id="environment"></span></div>
+ <div class="filters card"><label for="days">Période<select id="days"><option value="1">Dernières 24 heures</option><option value="7">7 derniers jours</option><option value="30" selected>30 derniers jours</option></select></label><label for="event">Page / événement<select id="event"><option value="">Toutes les pages</option></select></label><button id="refresh">Actualiser</button><span id="updated"></span></div>
+ <p id="reportStatus" role="status" aria-live="polite"></p>
+ <nav class="tabs" role="tablist" aria-label="Sections du tableau de bord">
+  <button id="tab-overview" role="tab" aria-controls="overview" aria-selected="true">Vue d’ensemble</button><button id="tab-journey" role="tab" aria-controls="journey" aria-selected="false">Parcours et paniers</button><button id="tab-marketing" role="tab" aria-controls="marketing" aria-selected="false">Marketing</button><button id="tab-reservations" role="tab" aria-controls="reservations" aria-selected="false">Réservations</button><button id="tab-settings" role="tab" aria-controls="settings" aria-selected="false">Connexions et accès</button>
+ </nav>
+ <section id="overview" role="tabpanel" aria-labelledby="tab-overview">
+  <div id="metrics" class="metrics"></div>
+  <div class="grid"><article class="card"><h2>Navigation mesurée</h2><p>Visites enregistrées avec consentement, pas l’ensemble du trafic Netlify.</p><div id="trend"></div></article><article class="card"><h2>État des sessions Stripe</h2><p>Sessions créées pendant la période, état actuel. Périmètre du parc Pixanova seulement.</p><div id="payments"></div></article></div>
+  <article class="card"><h2>À lire avant de comparer les chiffres</h2><ul id="notes"></ul></article>
+ </section>
+ <section id="journey" role="tabpanel" aria-labelledby="tab-journey" hidden>
+  <article class="card"><h2>Étapes du parcours</h2><p>Sessions pseudonymisées ayant atteint chaque étape après consentement. Une fermeture n’est pas une annulation de réservation.</p><div id="funnel"></div></article>
+  <article class="card"><h2>Dernières sélections et récapitulatifs</h2><p>50 derniers états observés. Estimations du navigateur, pas des paiements. Aucune identité client collectée ici.</p><div id="carts"></div></article>
+ </section>
+ <section id="marketing" role="tabpanel" aria-labelledby="tab-marketing" hidden>
+  <article class="card"><h2>Pages et événements</h2><div id="pages"></div></article>
+  <article class="card"><h2>Sources et campagnes</h2><p>Sources déclarées sur les pages vues consenties. Pas d’attribution automatique des revenus aux campagnes.</p><div id="sources"></div></article>
+  <article class="card"><h2>Comprendre les clics</h2><p>Clarity apporte les cartes de chaleur et les relectures de navigation, une fois le projet configuré. Les champs et récapitulatifs sont masqués. Les paiements et les pages admin ne sont pas enregistrés.</p><a href="https://clarity.microsoft.com/" target="_blank" rel="noopener noreferrer">Ouvrir Microsoft Clarity</a></article>
+ </section>
+ <section id="reservations" role="tabpanel" aria-labelledby="tab-reservations" hidden>
+  <article class="card"><h2>Réservations de la période</h2><p id="reservationCounts"></p><p>Une réservation hors ligne ne signifie pas qu’un paiement a été encaissé. Les montants ci-dessous sont ceux des récapitulatifs, pas un total comptable.</p><div id="orders"></div></article>
+ </section>
+ <section id="settings" role="tabpanel" aria-labelledby="tab-settings" hidden>
+  <div id="integrations" class="grid"></div>
+  <article class="card"><h2>Protection et conservation</h2><p>Un rôle admin unique. Accès contrôlé côté serveur, sessions privées, aucun mot de passe dans le navigateur après connexion. Comportements conservés 30 jours; limitation anti-abus nettoyée après un jour. Aucune coordonnée ni texte de formulaire dans les événements statistiques.</p><p>Le formulaire public prépare encore un courriel : il ne constitue pas une soumission reçue et enregistrée. L’envoi direct Microsoft 365 reste un raccordement distinct.</p></article>
+  <article class="card"><h2>Changer mon mot de passe</h2><form id="passwordForm" class="password-form"><label for="currentPassword">Mot de passe actuel<input id="currentPassword" name="currentPassword" type="password" autocomplete="current-password" required></label><label for="newPassword">Nouveau mot de passe — 14 caractères minimum<input id="newPassword" name="newPassword" type="password" minlength="14" maxlength="128" autocomplete="new-password" required></label><button type="submit">Enregistrer et me reconnecter</button></form><p id="passwordStatus" role="status"></p></article>
+ </section>
+</section>
+</main>
+<script type="module" src="/admin/admin.js"></script>
+</body></html>

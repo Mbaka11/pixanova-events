@@ -17,6 +17,7 @@
 /public/js/montage.mjs
 /public/js/generic-shared.mjs
 /public/js/generic-i18n.mjs
+/public/js/analytics-shared.mjs
 
 # Netlify (CLI locale)
 .netlify/

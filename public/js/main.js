@@ -3,6 +3,7 @@ import { copy, money } from './i18n.mjs';
 import { initTestimonials } from './testimonials.js';
 import { verifyConfirmation } from './confirmation.js';
 import { createBookingDialog } from './booking-dialog.js';
+import { createAnalytics } from './analytics.js';
 const { event: EVENT, platform: PLATFORM, labels: LABELS, language: LANGUAGE } = window.CONFIG;
 const ui = copy(LANGUAGE);
 const fm0 = c => money(c, LANGUAGE);
@@ -19,32 +20,9 @@ const o3 = {n:3};
 const phaseNow = () => currentPhase(EVENT)==='regular' ? 'reg' : 'early';
 const S = {stock: null, phase: phaseNow(), open: bookingIsOpen(EVENT)};
 
-/* ---------- Statistiques (avec consentement) ---------- */
-const A = CONFIG.analytics, anyA = !!(A.ga4||A.clarity||A.metaPixel);
-let consent=null; try{ consent=localStorage.getItem('px_consent'); }catch(e){}
-let aReady=false; const aQueue=[];
-function loadScript(src){ const x=document.createElement('script'); x.async=true; x.src=src; document.head.appendChild(x); }
-function initAnalytics(){
-  if(aReady) return;
-  if(A.ga4){ window.dataLayer=window.dataLayer||[]; window.gtag=function(){ dataLayer.push(arguments); }; loadScript('https://www.googletagmanager.com/gtag/js?id='+A.ga4); gtag('js',new Date()); gtag('config',A.ga4); }
-  if(A.clarity){ (function(c,l,a,r,i,t,y){ c[a]=c[a]||function(){ (c[a].q=c[a].q||[]).push(arguments); }; t=l.createElement(r); t.async=1; t.src='https://www.clarity.ms/tag/'+i; y=l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t,y); })(window,document,'clarity','script',A.clarity); }
-  if(A.metaPixel){ !function(f,b,e,v,n,t,s){ if(f.fbq)return; n=f.fbq=function(){ n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments); }; if(!f._fbq)f._fbq=n; n.push=n; n.loaded=!0; n.version='2.0'; n.queue=[]; t=b.createElement(e); t.async=!0; t.src=v; s=b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t,s); }(window,document,'script','https://connect.facebook.net/en_US/fbevents.js'); fbq('init',A.metaPixel); fbq('track','PageView'); }
-  aReady=true; aQueue.splice(0).forEach(q=>sendEvt(q[0],q[1]));
-}
-function sendEvt(n,p){
-  if(A.ga4&&window.gtag) gtag('event',n,p||{});
-  if(A.clarity&&window.clarity) clarity('event',n);
-  if(A.metaPixel&&window.fbq){ const m={begin_checkout:'InitiateCheckout',purchase:'Purchase'}[n]; if(m) fbq('track',m); else fbq('trackCustom',n,p||{}); }
-}
-function track(n,p){ if(!anyA||consent!=='yes') return; const detail={event:EVENT.id,...p}; aReady?sendEvt(n,detail):aQueue.push([n,detail]); }
-(function(){
-  if(!anyA) return;
-  const box=document.getElementById('consent');
-  if(consent==='yes') initAnalytics();
-  else if(consent===null){ box.hidden=false; }
-  document.getElementById('cOk').onclick=()=>{ consent='yes'; try{localStorage.setItem('px_consent','yes');}catch(e){} box.hidden=true; initAnalytics(); };
-  document.getElementById('cNo').onclick=()=>{ consent='no'; try{localStorage.setItem('px_consent','no');}catch(e){} box.hidden=true; };
-})();
+/* ---------- Statistiques facultatives : aucun suivi avant consentement ---------- */
+const analytics=createAnalytics({eventId:EVENT.id,language:LANGUAGE,settings:CONFIG.analytics});
+const track=(name,props)=>analytics.track(name,{amountBasis:'tax_included',...props});
 
 /* ---------- Routage : accueil, merci, liste d'attente ---------- */
 const routes=[...document.querySelectorAll('[data-route]')];
@@ -156,7 +134,7 @@ async function loadStock(){
   } catch { /* Aperçu statique : ne jamais inventer un stock disponible. */ }
 }
 
-const bookingDialog = createBookingDialog(CONFIG, {refreshStock:loadStock,onCheckout:details=>track('begin_checkout',details)});
+const bookingDialog = createBookingDialog(CONFIG, {refreshStock:loadStock,onCheckout:details=>track('begin_checkout',details),onEvent:track});
 
 /* Clics : récapitulatif et boutons principaux */
 document.addEventListener('click',e=>{
@@ -164,10 +142,10 @@ document.addEventListener('click',e=>{
   if(a){
     const href=a.getAttribute('href');
     if(a.getAttribute('aria-disabled')==='true'){e.preventDefault();return;}
-    if(a.hasAttribute('data-pack') && href!=='#/liste-attente'){ e.preventDefault(); bookingDialog.open(Number(a.dataset.pack),a); return; }
+    if(a.hasAttribute('data-pack') && href!=='#/liste-attente'){ e.preventDefault(); track('cta_click',{section:'offres',screens:Number(a.dataset.pack)});bookingDialog.open(Number(a.dataset.pack),a); return; }
     return;
   }
-  const c=e.target.closest('[data-cta]'); if(c) track('cta_click',{label:(c.dataset.t||c.textContent).trim()});
+  const c=e.target.closest('[data-cta]'); if(c) track('cta_click',{section:c.closest('section,.hero')?.id});
 });
 
 /* Compte à rebours en direct jusqu'à la fin de l'early bird */

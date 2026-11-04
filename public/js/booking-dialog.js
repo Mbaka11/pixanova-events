@@ -2,7 +2,7 @@ import { copy, money } from './i18n.mjs';
 import { montageChoices, montagePrice, montageHours } from './montage.mjs';
 import { currentPhase } from './events-shared.js';
 
-export function createBookingDialog(config, { refreshStock, onCheckout } = {}) {
+export function createBookingDialog(config, { refreshStock, onCheckout, onEvent } = {}) {
   const ui = copy(config.language);
   const el = (tag, className, text) => {
     const node = document.createElement(tag);
@@ -30,7 +30,7 @@ export function createBookingDialog(config, { refreshStock, onCheckout } = {}) {
     const price = el('strong', 'booking-option-price');
     top.append(name, price); content.append(top, el('span', 'booking-option-description', ui.montageDescription(choice, montageHours(config.platform, choice))));
     label.append(input, content); fieldset.append(label); choices.set(choice, { input, price });
-    input.addEventListener('change', () => { if (!busy) void loadQuote(); });
+    input.addEventListener('change', () => { if (!busy) { emit('design_change',{totalCents:null});void loadQuote(); } });
   }
   const summary = el('dl', 'booking-summary');
   const values = {};
@@ -55,6 +55,8 @@ export function createBookingDialog(config, { refreshStock, onCheckout } = {}) {
   dialog.append(form); document.body.append(dialog);
   let screens=1, quote=null, busy=false, generation=0, controller, returnFocus;
   const choice = () => form.elements.montage.value;
+  let closeReason='close';
+  function emit(name,props={}){try{onEvent?.(name,{screens,montage:choice(),...props})}catch{/* Le suivi ne doit jamais bloquer un paiement. */}}
   const requestStorageKey = `pixanova-checkout:${config.event.id}:${config.language}`;
   let checkoutRequest;
   function clearCheckoutRequest() {
@@ -91,7 +93,7 @@ export function createBookingDialog(config, { refreshStock, onCheckout } = {}) {
       if(ticket!==generation||!dialog.open)return;
       if(!response.ok)throw new Error(data.error==='booking_closed'?ui.checkoutClosed:ui.quoteError);
       if(data.eventId!==config.event.id||data.screens!==screens||data.montage!==montage||data.currency!=='cad'||Object.keys(values).some(key=>!Number.isSafeInteger(data[key])||data[key]<0))throw new Error(ui.quoteError);
-      quote=data;
+      quote=data;emit('cart_update',{totalCents:data.totalCents});
       for(const [option,elements]of choices)elements.price.textContent=money(montagePrice(config.platform,screens,option,data.phase),config.language);
       for(const [key,value]of Object.entries(values))value.textContent=money(data[key],config.language,true);
       status.textContent='';
@@ -100,14 +102,14 @@ export function createBookingDialog(config, { refreshStock, onCheckout } = {}) {
       status.textContent=error.message===ui.checkoutClosed?error.message:ui.quoteError; retry.hidden=false;
     } finally {if(ticket===generation)controls();}
   }
-  function finish() {if(!busy)dialog.close();}
-  close.addEventListener('click',finish);back.addEventListener('click',finish);
+  function finish(reason) {if(!busy){closeReason=reason;dialog.close();}}
+  close.addEventListener('click',()=>finish('close'));back.addEventListener('click',()=>finish('back'));
   retry.addEventListener('click',()=>void loadQuote());
-  dialog.addEventListener('cancel',event=>{if(busy)event.preventDefault();});
-  dialog.addEventListener('close',()=>{generation++;controller?.abort();quote=null;returnFocus?.focus({preventScroll:true});});
+  dialog.addEventListener('cancel',event=>{if(busy)event.preventDefault();else closeReason='escape';});
+  dialog.addEventListener('close',()=>{emit('cart_close',{reason:closeReason,totalCents:quote?.totalCents??null});generation++;controller?.abort();quote=null;returnFocus?.focus({preventScroll:true});});
   form.addEventListener('submit',async event=>{
     event.preventDefault();if(busy||!quote)return;
-    busy=true;controls();status.textContent=ui.checkoutLoading;
+    emit('checkout_attempt',{totalCents:quote.totalCents});busy=true;controls();status.textContent=ui.checkoutLoading;
     let redirecting=false;
     try {
       const response=await fetch('/api/checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({eventId:config.event.id,screens,montage:choice(),language:config.language,expectedTotalCents:quote.totalCents,requestId:checkoutRequestId()})});
@@ -126,6 +128,7 @@ export function createBookingDialog(config, { refreshStock, onCheckout } = {}) {
       window.location.assign(url.href);redirecting=true;
     } catch(error) {
       const known=[ui.quoteChanged,ui.checkoutStock,ui.checkoutClosed,ui.checkoutSetup,ui.checkoutError];
+      emit('checkout_error',{code:error.message===ui.quoteChanged?'quote_changed':error.message===ui.checkoutStock?'not_enough_stock':'unknown'});
       status.textContent=known.includes(error.message)?error.message:ui.checkoutError;
     } finally {if(!redirecting){busy=false;controls();}}
   });
@@ -135,6 +138,6 @@ export function createBookingDialog(config, { refreshStock, onCheckout } = {}) {
     screens=count; returnFocus=trigger;choices.get('none').input.checked=true;
     for(const [option,elements]of choices)elements.price.textContent=money(montagePrice(config.platform,screens,option,currentPhase(config.event)),config.language);
     eventLine.textContent=`${config.labels.fullName} · ${ui.screen(screens)}`;
-    dialog.showModal();void loadQuote();
+    closeReason='close';dialog.showModal();emit('cart_open',{totalCents:null});void loadQuote();
   }};
 }

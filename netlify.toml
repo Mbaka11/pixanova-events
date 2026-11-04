@@ -10,6 +10,16 @@
   # Garder le scan actif pour les clés Stripe, secrets webhook et Supabase.
   SECRETS_SCAN_OMIT_KEYS = "SITE_URL,STRIPE_TAX_RATE_TPS,STRIPE_TAX_RATE_TVQ"
 
+[[headers]]
+  for = "/admin/*"
+  [headers.values]
+    Cache-Control = "private, no-store"
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "no-referrer"
+    X-Robots-Tag = "noindex, nofollow"
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'"
+
 [dev]
   command = "npm run dev"
   targetPort = 8080

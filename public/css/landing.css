@@ -1,4 +1,5 @@
 /* Page de vente : ordre des sections, offres sur fond clair, exemples de création. */
+.analytics-settings{background:transparent;border:0;color:inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer;font:inherit;padding:0}footer .wrap{flex-wrap:wrap;gap:16px}
 section[id]{scroll-margin-top:90px}
 #video{padding-bottom:44px!important}
 #offres{padding-top:56px!important;background:#f8fafc;color:var(--ink);border-top:1px solid #dce3ed}#offres .head .eyebrow{color:#1D4FC4}.offer .value{display:none}.offer .price .unit{font-size:12px;line-height:1.5}.offer .amp b{font-size:12px;font-weight:500}

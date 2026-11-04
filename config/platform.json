@@ -10,5 +10,5 @@
   "screen": { "valueCents": 700000, "widthCm": 96, "widthPx": 516, "heightPx": 1032 },
   "montage": { "simpleCents": 14900, "animatedCents": 24900, "regularSimpleCents": 30000, "regularAnimatedCents": 50000, "multipleScreensExtraCents": 0, "simpleHours": 5, "animatedHours": 10 },
   "taxes": { "gstPercent": 5, "qstPercent": 9.975 },
-  "analytics": { "ga4": "", "clarity": "", "metaPixel": "" }
+  "analytics": { "enabled": true, "ga4": "", "clarity": "", "metaPixel": "" }
 }

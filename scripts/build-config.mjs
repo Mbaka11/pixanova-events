@@ -15,5 +15,6 @@ copyFileSync(new URL('../shared/i18n.mjs', import.meta.url), new URL('i18n.mjs',
 copyFileSync(new URL('../shared/montage.mjs', import.meta.url), new URL('montage.mjs', js));
 copyFileSync(new URL('../shared/generic.mjs', import.meta.url), new URL('generic-shared.mjs', js));
 copyFileSync(new URL('../shared/generic-i18n.mjs', import.meta.url), new URL('generic-i18n.mjs', js));
+copyFileSync(new URL('../shared/analytics.mjs', import.meta.url), new URL('analytics-shared.mjs', js));
 buildGeneric();
 console.log(`${catalog.platform.name} : ${catalog.events.length} événement(s) validé(s).`);

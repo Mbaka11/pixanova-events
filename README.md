@@ -8,6 +8,10 @@ Plateforme de location d’écrans LED : accueil générique avec demande de dev
 
 **Accueil générique :** tarifs journaliers avant taxes, 530 $ pour 1 écran, 930 $ au total pour 2, 1300 $ au total pour 3, 1733,33 $ au total pour 4. Les prix journaliers sont fermes au cent pour chaque quantité, sans approximation ni moyenne par écran. L’estimation utilise les jours calendaires d’utilisation (début et fin inclus), avec création ajoutée une seule fois; dates/frais logistiques et prix final confirmés au devis. Aucune réservation ni transaction Stripe dans ce parcours.
 
+## Administration et statistiques
+
+Accès privé à `/admin/`, rôle admin unique : vue d’ensemble, parcours/paniers observés, marketing et réservations. Les événements comportementaux sont collectés uniquement après consentement; les encaissements proviennent de Stripe et les réservations de Supabase. Aucun clic historique non collecté n’est reconstitué. Netlify est proposé en accès direct (pas d’API Web Analytics publique stable); Clarity reste désactivé tant que son ID de projet n’est pas configuré. Détails de sécurité, installation et limites : [docs/ADMIN-ANALYTICS.md](docs/ADMIN-ANALYTICS.md).
+
 ## Développement
 
 Node.js 22 ou plus récent.

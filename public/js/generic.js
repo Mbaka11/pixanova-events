@@ -5,7 +5,10 @@ import {dailyRentalPrice,computeGenericEstimate,usageDays,availabilityPeriod,loc
 import {montagePrice,montageHours,montageChoices} from './montage.mjs';
 import {language,translateStaticDOM,installLanguageSwitcher} from './language.js';
 import {initGenericPresentation} from './generic-presentation.js';
+import {createAnalytics} from './analytics.js';
 const {platform,generic}=catalog,ui=copy(language),g=genericCopy(language);
+const stats=createAnalytics({eventId:'generic',language,settings:platform.analytics});
+const track=(name,props={})=>stats.track(name,{amountBasis:'before_tax',...props});
 translateStaticDOM(genericEnglish);installLanguageSwitcher();
 document.title=g.title;document.querySelector('meta[property="og:title"]').content=g.title;
 const description=ui.en?'LED screens for trade shows and events. Choose your dates and request a custom quote.':'Des écrans LED pour vos salons et événements. Choisissez vos dates et demandez un devis personnalisé.';
@@ -42,11 +45,11 @@ function renderOffers(){
  text('#o3Amp',ui.en?'Depends on your setup':'Selon votre installation');
  document.getElementById('o3Minus').disabled=count<=3;document.getElementById('o3Plus').disabled=count>=generic.maxScreens;
 }
-document.getElementById('o3Minus').onclick=()=>{count=Math.max(3,count-1);renderOffers()};
-document.getElementById('o3Plus').onclick=()=>{count=Math.min(generic.maxScreens,count+1);renderOffers()};renderOffers();
+document.getElementById('o3Minus').onclick=()=>{count=Math.max(3,count-1);renderOffers();track('screens_change',{screens:count,totalCents:null})};
+document.getElementById('o3Plus').onclick=()=>{count=Math.min(generic.maxScreens,count+1);renderOffers();track('screens_change',{screens:count,totalCents:null})};renderOffers();
 
 const dialog=document.getElementById('inquiryDialog'),form=document.getElementById('inquiryForm'),result=document.getElementById('inquiryResult'),inquiryStatus=document.getElementById('inquiryAvailability');
-let submitting=false,returnFocus;
+let submitting=false,returnFocus,pendingMailto=null;
 function datesValid(from,through){try{availabilityPeriod(from,through,{timeZone:platform.timeZone});return true}catch{return false}}
 async function getAvailability(from,through,signal){
  const params=new URLSearchParams();if(from&&through){params.set('from',from);params.set('through',through)}
@@ -62,11 +65,11 @@ for(let n=1;n<=generic.maxScreens;n++){const option=document.createElement('opti
 for(const choice of montageChoices){const option=document.createElement('option');option.value=choice;option.textContent=`${ui.montageLabel(choice)} · ${format(montagePrice(platform,1,choice,'regular'))}`;form.elements.montage.append(option)}
 function openInquiry(screens,trigger){
  if(dialog.open)return;returnFocus=trigger;form.elements.screens.value=screens;
- result.hidden=true;inquiryStatus.textContent=g.dates;setMinimumDates();renderEstimate();dialog.showModal();
+ result.hidden=true;pendingMailto=null;inquiryStatus.textContent=g.dates;setMinimumDates();const estimate=renderEstimate();dialog.showModal();track('quote_open',{screens,montage:form.elements.montage.value,totalCents:estimate?.subtotalCents??null,days:estimate?.days??null});
 }
-document.addEventListener('click',e=>{const link=e.target.closest('[data-pack],[data-cta]');if(!link)return;e.preventDefault();openInquiry(Number(link.dataset.pack)||1,link)});
+document.addEventListener('click',e=>{const link=e.target.closest('[data-pack],[data-cta]');if(!link)return;e.preventDefault();track('cta_click',{section:link.closest('section,.hero')?.id});openInquiry(Number(link.dataset.pack)||1,link)});
 document.getElementById('inquiryClose').onclick=()=>dialog.close();
-dialog.addEventListener('close',()=>{returnFocus?.focus({preventScroll:true})});
+dialog.addEventListener('close',()=>{track('quote_close');returnFocus?.focus({preventScroll:true})});
 function renderEstimate(){
  const section=document.getElementById('inquiryEstimate');
  if(!datesValid(form.elements.from.value,form.elements.through.value)){section.hidden=true;return}
@@ -75,10 +78,13 @@ function renderEstimate(){
   text('#inquiryDuration',g.duration(estimate.days)+' · '+format(estimate.dailyCents)+(ui.en?'/day':'/jour'));
   text('[data-estimate-rental-label]',g.estimateRental);text('[data-estimate-design-label]',g.estimateDesign);
   text('#inquiryRental',format(estimate.rentalCents));text('#inquiryDesignPrice',format(estimate.montageCents));text('#inquiryTotal',format(estimate.subtotalCents));
-  section.hidden=false;
+  section.hidden=false;return estimate;
  }catch{section.hidden=true}
 }
-form.addEventListener('input',()=>{result.hidden=true;inquiryStatus.textContent=g.dates;setMinimumDates();renderEstimate()});
+form.addEventListener('input',event=>{result.hidden=true;pendingMailto=null;inquiryStatus.textContent=g.dates;setMinimumDates();const estimate=renderEstimate();
+ const name={inquiryScreens:'screens_change',inquiryDesign:'design_change',inquiryFrom:'dates_change',inquiryThrough:'dates_change'}[event.target.id];
+ if(name)track(name,{screens:Number(form.elements.screens.value),montage:form.elements.montage.value,totalCents:estimate?.subtotalCents??null,days:estimate?.days??null});
+});
 form.onsubmit=async e=>{
  e.preventDefault();if(submitting||!form.reportValidity())return;
  const fields=Object.fromEntries(new FormData(form));
@@ -97,14 +103,17 @@ form.onsubmit=async e=>{
   const keys=[...g.summaryKeys];keys[9]=g.rentalSummaryLabel(estimate.days);
   const summary=g.summaryTitle+'\n\n'+entries.map((value,i)=>keys[i]+' : '+(value||'—')).join('\n')+'\n\n'+g.duration(estimate.days)+'\n'+g.estimateTotal+' : '+format(estimate.subtotalCents)+'\n\n'+g.summaryNote;
   document.getElementById('inquirySummary').value=summary;
-  document.getElementById('inquiryMail').href=`mailto:${platform.contact.email}?subject=${encodeURIComponent(g.subject)}&body=${encodeURIComponent(summary)}`;
-  result.hidden=false;
+  // Ne pas exposer les coordonnées du client dans un attribut href lu par un outil de replay.
+  pendingMailto=`mailto:${platform.contact.email}?subject=${encodeURIComponent(g.subject)}&body=${encodeURIComponent(summary)}`;
+  document.getElementById('inquiryMail').href=`mailto:${platform.contact.email}`;
+  result.hidden=false;track('quote_prepared',{screens,montage:fields.montage,totalCents:estimate.subtotalCents,days:estimate.days});
  }finally{submitting=false;button.disabled=false}
 };
 document.getElementById('inquiryCopy').onclick=async()=>{
- try{await navigator.clipboard.writeText(document.getElementById('inquirySummary').value);inquiryStatus.textContent=g.copied}
+ try{await navigator.clipboard.writeText(document.getElementById('inquirySummary').value);inquiryStatus.textContent=g.copied;track('summary_copy')}
  catch{document.getElementById('inquirySummary').select();inquiryStatus.textContent=g.copyFallback}
 };
 const privacy=form.querySelector('.inquiry-privacy a');if(ui.en)privacy.href='https://www.pixanova.ca/en/legal/politique-de-confidentialite';
-initGenericPresentation(generic,ui);
+document.getElementById('inquiryMail').addEventListener('click',event=>{track('email_open');if(event.defaultPrevented||!pendingMailto)return;event.preventDefault();window.location.assign(pendingMailto)});
+initGenericPresentation(generic,ui,track);
 document.documentElement.classList.remove('event-loading');
