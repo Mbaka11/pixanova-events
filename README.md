@@ -10,7 +10,7 @@ Plateforme de location d’écrans LED : accueil générique avec demande de dev
 
 ## Administration et statistiques
 
-Accès privé à `/admin/`, rôle admin unique : vue d’ensemble, parcours/paniers observés, marketing et réservations. Les événements comportementaux sont collectés uniquement après consentement; les encaissements proviennent de Stripe et les réservations de Supabase. Aucun clic historique non collecté n’est reconstitué. Netlify est proposé en accès direct (pas d’API Web Analytics publique stable); Clarity reste désactivé tant que son ID de projet n’est pas configuré. Détails de sécurité, installation et limites : [docs/ADMIN-ANALYTICS.md](docs/ADMIN-ANALYTICS.md).
+Accès privé à `/admin/`, rôle admin unique : vue d’ensemble, parcours/paniers observés, marketing et réservations. Les événements comportementaux sont collectés uniquement après consentement; les encaissements proviennent de Stripe et les réservations de Supabase. Aucun clic historique non collecté n’est reconstitué. Netlify est proposé en accès direct (pas d’API Web Analytics publique stable); Clarity est configuré (projet `z8gf7eons0`) et chargé uniquement après consentement; l’ajout du fournisseur redemande un choix aux anciens visiteurs. Détails de sécurité, installation et limites : [docs/ADMIN-ANALYTICS.md](docs/ADMIN-ANALYTICS.md).
 
 ## Développement
 
